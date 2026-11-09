@@ -1,0 +1,15 @@
+header {
+  position: relative;
+  background: #fff0f5;
+  padding: 0;
+  border-bottom: 1px solid #f4a6c1;
+}
+
+a {
+  color: #b83270;
+}
+
+a:hover {
+  background: #f8c8dc;
+  color: #8e2455;
+}
