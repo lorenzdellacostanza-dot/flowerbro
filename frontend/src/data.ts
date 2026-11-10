@@ -1,1 +1,1 @@
-import{Flower} from '.app/shared/models/Flower';
+import{Flower} from './app/shared/models/Flower';
