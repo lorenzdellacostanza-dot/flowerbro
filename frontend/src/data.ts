@@ -1,4 +1,5 @@
 import{Flower} from './app/shared/models/Flower';
+import { Tag } from './app/shared/models/Tag';
 
 export const sample_flower: Flower[] = [
     {
@@ -8,7 +9,7 @@ export const sample_flower: Flower[] = [
         favorite: false,
         origins: ['Italy'],
         stars: 4.5,
-        imageUrl: 'assets/flower_images/rose.jpg',
+        imageUrl: 'assets/flower_images/Rose.png',
         tags: ['romantic', 'classic'],
     },
 
@@ -19,7 +20,7 @@ export const sample_flower: Flower[] = [
         favorite: false,
         origins: ['Netherlands'],
         stars: 4.0,
-        imageUrl: 'assets/flower_images/tulip.jpg',
+        imageUrl: 'assets/flower_images/Tulip.png',
         tags: ['spring', 'colorful'],
     },
 
@@ -30,7 +31,7 @@ export const sample_flower: Flower[] = [
         favorite: false,
         origins: ['Thailand'],
         stars: 4.8,
-        imageUrl: 'assets/flower_images/orchid.jpg',
+        imageUrl: 'assets/flower_images/Orchid.png',
         tags: ['exotic', 'elegant'],
     },
 
@@ -41,7 +42,7 @@ export const sample_flower: Flower[] = [
         favorite: false,
         origins: ['United States'],
         stars: 4.2,
-        imageUrl: 'assets/flower_images/sunflower.jpg',
+        imageUrl: 'assets/flower_images/Sunflower.png',
         tags: ['bright', 'cheerful'],
     },
 
@@ -52,7 +53,7 @@ export const sample_flower: Flower[] = [
         favorite: false,
         origins: ['Germany'],
         stars: 4.0,
-        imageUrl: 'assets/flower_images/daisy.jpg',
+        imageUrl: 'assets/flower_images/daisy.png',
         tags: ['simple', 'pure'],
     },
 
@@ -63,7 +64,22 @@ export const sample_flower: Flower[] = [
         favorite: false,
         origins: ['Japan'],
         stars: 4.5,
-        imageUrl: 'assets/flower_images/lily.jpg',
+        imageUrl: 'assets/flower_images/Lily.png',
         tags: ['elegant', 'fragrant'],
     },
+    
 ]
+export const sample_tags: Tag[] = [
+    { name: 'All', count: 6 },
+    { name: 'romantic', count: 1 },
+    { name: 'classic', count: 1 },
+    { name: 'spring', count: 1 },
+    { name: 'colorful', count: 1 },
+    { name: 'exotic', count: 1 },
+    { name: 'elegant', count: 2 },
+    { name: 'bright', count: 1 },
+    { name: 'cheerful', count: 1 },
+    { name: 'simple', count: 1 },
+    { name: 'pure', count: 1 },
+    { name: 'fragrant', count: 1 }
+];
