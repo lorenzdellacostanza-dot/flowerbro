@@ -1,1 +1,13 @@
-<p>home works!</p>
+<ul>
+  <li *ngFor="let flower of flowers">
+    <a routerLink="/flower/{{flower.id}}">
+      <img [src]="flower.imageUrl" [alt]="flower.name" />
+
+      <div class="content">
+        <div class="name">
+          {{flower.name}}
+        </div>
+      </div>
+    </a>
+  </li>
+</ul>
