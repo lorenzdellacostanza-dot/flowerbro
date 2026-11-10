@@ -7,5 +7,4 @@ export class Flower {
     stars! : number;
     imageUrl! : string;
     origins! : string[];
-    cookTime! : string;
 }
