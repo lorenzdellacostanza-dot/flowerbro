@@ -5,7 +5,40 @@
 
       <div class="content">
         <div class="name">
-          {{flower.name}}
+          {{ flower.name }}
+        </div>
+
+        <span class="favorite {{ flower.favorite ? '' : 'not' }}">
+          ❤
+        </span>
+
+        <div
+          class="stars"
+          role="img"
+          [attr.aria-label]="flower.stars + ' out of 5 stars'"
+          [style.--rating]="flower.stars"
+        >
+          <span aria-hidden="true">★★★★★</span>
+          <span class="stars-fill" aria-hidden="true">★★★★★</span>
+        </div>
+
+        <div class="product-item-footer">
+          <div class="origins">
+            <span *ngFor="let origin of flower.origins">
+              {{ origin }}
+            </span>
+          </div>
+
+          @if (flower.deliveryTime; as deliveryTime) {
+            <div class="delivery-time">
+              <span aria-hidden="true">🕒</span>
+              Consegna in {{ deliveryTime }}
+            </div>
+          }
+        </div>
+
+        <div class="price">
+          <span>{{ flower.price | currency:'EUR' }}</span>
         </div>
       </div>
     </a>

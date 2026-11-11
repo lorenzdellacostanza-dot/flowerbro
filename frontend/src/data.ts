@@ -8,6 +8,7 @@ export const sample_flower: Flower[] = [
         price: 10,
         favorite: false,
         origins: ['Italy'],
+        deliveryTime: '1–2 giorni',
         stars: 4.5,
         imageUrl: 'assets/flower_images/Rose.png',
         tags: ['romantic', 'classic'],
