@@ -8,10 +8,6 @@
           {{ flower.name }}
         </div>
 
-        <span class="favorite {{ flower.favorite ? '' : 'not' }}">
-          ❤
-        </span>
-
         <div
           class="stars"
           role="img"
@@ -42,5 +38,14 @@
         </div>
       </div>
     </a>
+    <button
+      type="button"
+      class="favorite"
+      [attr.aria-label]="'Mi piace per ' + flower.name"
+      [attr.aria-pressed]="flower.favorite"
+      (click)="toggleFavorite(flower)"
+    >
+      <span aria-hidden="true">{{ flower.favorite ? '♥' : '♡' }}</span>
+    </button>
   </li>
 </ul>
