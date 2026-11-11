@@ -1,0 +1,32 @@
+<main class="cart">
+  <h1>Carrello</h1>
+  @if (cart.items().length) {
+    <ul class="items">
+      @for (item of cart.items(); track item.flower.id) {
+        <li>
+          <a class="item" [routerLink]="['/flower', item.flower.id]">
+            <img [src]="item.flower.imageUrl" alt="" width="64" height="64" />
+            <span>
+              <strong>{{ item.flower.name }}</strong>
+              <small>Quantità: {{ item.quantity }}</small>
+            </span>
+          </a>
+          <div class="item-actions">
+            <strong>{{ item.subtotal | currency:'EUR' }}</strong>
+            <button
+              type="button"
+              [attr.aria-label]="'Rimuovi ' + item.flower.name + ' dal carrello'"
+              (click)="cart.remove(item.flower.id)"
+            >
+              Rimuovi
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+    <p class="total">Totale <strong>{{ cart.total() | currency:'EUR' }}</strong></p>
+  } @else {
+    <p>Il carrello è vuoto.</p>
+  }
+  <a class="back" routerLink="/">Torna al catalogo</a>
+</main>

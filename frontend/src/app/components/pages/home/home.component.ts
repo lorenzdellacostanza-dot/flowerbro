@@ -1,4 +1,5 @@
-import { afterNextRender, ChangeDetectorRef, Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FlowerFavoritesService } from '../../../services/flower-favorites.service';
 import { FlowerService } from '../../../services/flower.service';
 import { Flower } from '../../../shared/models/Flower';
 import { CommonModule } from '@angular/common';
@@ -13,6 +14,7 @@ import { RouterLink } from '@angular/router';
 export class HomeComponent {
   flowers: Flower[];
 
+  protected readonly favorites = inject(FlowerFavoritesService);
   private readonly searchTerm = signal('');
 
   protected readonly visibleFlowers = computed(() => {
@@ -20,22 +22,8 @@ export class HomeComponent {
     return this.flowers.filter(flower => flower.name.toLowerCase().includes(term));
   });
 
-  constructor(flowerService: FlowerService, changeDetector: ChangeDetectorRef) {
+  constructor(flowerService: FlowerService) {
     this.flowers = flowerService.getAll();
-
-    afterNextRender(() => {
-      try {
-        for (const flower of this.flowers) {
-          const saved = localStorage.getItem(this.favoriteKey(flower.id));
-          if (saved === 'true' || saved === 'false') {
-            flower.favorite = saved === 'true';
-          }
-        }
-      } catch {
-        // Browser storage may be unavailable.
-      }
-      changeDetector.markForCheck();
-    });
   }
 
   protected searchFlowers(query: string): void {
@@ -46,19 +34,5 @@ export class HomeComponent {
     if (!query.trim()) {
       this.searchFlowers('');
     }
-  }
-
-  protected toggleFavorite(flower: Flower): void {
-    flower.favorite = !flower.favorite;
-
-    try {
-      localStorage.setItem(this.favoriteKey(flower.id), String(flower.favorite));
-    } catch {
-      // Keep the selection in memory when browser storage is unavailable.
-    }
-  }
-
-  private favoriteKey(id: string): string {
-    return `flowerbro.favorite.${id}`;
   }
 }

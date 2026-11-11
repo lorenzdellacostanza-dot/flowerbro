@@ -29,6 +29,7 @@ ul{
     display: flex;
     list-style-type: none;
     margin: 0;
+    padding: 0;
 
 }
 ul a{
@@ -36,7 +37,7 @@ ul a{
     display: inline-block;
 }
 a span {
-    background: #ff69b4;
+    background: #b83265;
     color: white;
     padding: 0.1rem 0.45rem;
     border-radius: 100rem;
@@ -59,4 +60,11 @@ a span {
 .menu a {
     width: 100%;
     min-width: 8rem;
+}
+
+@media (max-width: 30rem) {
+  a.logo,
+  ul a {
+    padding: 0.875rem 0.55rem;
+  }
 }

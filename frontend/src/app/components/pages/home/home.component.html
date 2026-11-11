@@ -59,10 +59,10 @@
       type="button"
       class="favorite"
       [attr.aria-label]="'Mi piace per ' + flower.name"
-      [attr.aria-pressed]="flower.favorite"
-      (click)="toggleFavorite(flower)"
+      [attr.aria-pressed]="favorites.isFavorite(flower)"
+      (click)="favorites.toggle(flower)"
     >
-      <span aria-hidden="true">{{ flower.favorite ? '♥' : '♡' }}</span>
+      <span aria-hidden="true">{{ favorites.isFavorite(flower) ? '♥' : '♡' }}</span>
     </button>
   </li>
 </ul>

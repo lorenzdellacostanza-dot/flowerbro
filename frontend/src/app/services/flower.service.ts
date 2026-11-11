@@ -20,4 +20,8 @@ getAllFlowersByTag(tag: string): Flower[] {
     this.getAll() :
     this.getAll().filter(flower => flower.tags?.includes(tag));
 }
+
+  getFlowerById(flowerId: string): Flower | undefined {
+    return this.getAll().find(flower => flower.id === flowerId);
+  }
 }

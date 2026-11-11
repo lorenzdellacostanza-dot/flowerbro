@@ -1,0 +1,69 @@
+@if (flower(); as flower) {
+  <main class="flower-detail">
+    <img class="flower-photo" [src]="flower.imageUrl" [alt]="flower.name" />
+
+    <div class="details">
+      <div class="title-row">
+        <h1>{{ flower.name }}</h1>
+        <button
+          type="button"
+          class="favorite"
+          [attr.aria-label]="'Mi piace per ' + flower.name"
+          [attr.aria-pressed]="favorites.isFavorite(flower)"
+          (click)="favorites.toggle(flower)"
+        >
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0l-1 1-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1 7.8 7.8 7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8Z" />
+          </svg>
+        </button>
+      </div>
+
+      <div
+        class="stars"
+        role="img"
+        [attr.aria-label]="flower.stars + ' stelle su 5'"
+        [style.--rating]="flower.stars"
+      >
+        <span aria-hidden="true">★★★★★</span>
+        <span class="stars-fill" aria-hidden="true">★★★★★</span>
+      </div>
+
+      @if (flower.origins.length) {
+        <ul class="labels origins" aria-label="Provenienza">
+          @for (origin of flower.origins; track origin) {
+            <li>{{ origin }}</li>
+          }
+        </ul>
+      }
+
+      @if (flower.tags?.length) {
+        <ul class="labels tags" aria-label="Categorie">
+          @for (tag of flower.tags; track tag) {
+            <li>{{ tag }}</li>
+          }
+        </ul>
+      }
+
+      @if (flower.deliveryTime; as deliveryTime) {
+        <p>Consegna in <strong>{{ deliveryTime }}</strong></p>
+      }
+
+      <p class="price">Prezzo: <strong>{{ flower.price | currency:'EUR' }}</strong></p>
+      <div>
+        <button type="button" class="add-to-cart" (click)="cart.add(flower.id)">
+          Aggiungi al carrello
+        </button>
+        <p class="cart-status" role="status">
+          @if (cart.quantity(flower.id); as quantity) {
+            {{ quantity }} nel carrello
+          }
+        </p>
+      </div>
+    </div>
+  </main>
+} @else {
+  <main class="empty">
+    <h1>Fiore non trovato</h1>
+    <a routerLink="/">Torna al catalogo</a>
+  </main>
+}
