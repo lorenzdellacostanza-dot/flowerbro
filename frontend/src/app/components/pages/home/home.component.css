@@ -3,6 +3,68 @@
   padding: clamp(1.25rem, 3vw, 2.5rem) 1rem;
 }
 
+.flower-search {
+  display: flex;
+  max-width: 25rem;
+  margin: 0 auto clamp(1.5rem, 3vw, 2rem);
+  border: 1px solid #f4cddd;
+  border-radius: 999px;
+  background: #fffdfd;
+  box-shadow: 0 0.2rem 0.75rem rgb(53 75 49 / 8%);
+}
+
+.flower-search:focus-within {
+  border-color: #b83265;
+  box-shadow: 0 0 0 3px rgb(184 50 101 / 18%);
+}
+
+.flower-search input,
+.flower-search button {
+  border: 0;
+  font: inherit;
+}
+
+.flower-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 999px 0 0 999px;
+  background: transparent;
+  color: #382f32;
+}
+
+.flower-search input::placeholder {
+  color: #75666b;
+}
+
+.flower-search input:focus {
+  outline: none;
+}
+
+.flower-search button {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 999px 999px 0;
+  background: #b83265;
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.flower-search button:hover {
+  background: #a52152;
+}
+
+.flower-search button:focus-visible {
+  outline: 2px solid white;
+  outline-offset: -4px;
+}
+
+.search-status {
+  margin: 0;
+  color: #53614d;
+  text-align: center;
+}
+
 ul {
   display: flex;
   flex-wrap: wrap;

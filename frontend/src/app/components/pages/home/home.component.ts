@@ -1,4 +1,4 @@
-import { afterNextRender, ChangeDetectorRef, Component } from '@angular/core';
+import { afterNextRender, ChangeDetectorRef, Component, computed, signal } from '@angular/core';
 import { FlowerService } from '../../../services/flower.service';
 import { Flower } from '../../../shared/models/Flower';
 import { CommonModule } from '@angular/common';
@@ -12,6 +12,13 @@ import { RouterLink } from '@angular/router';
 })
 export class HomeComponent {
   flowers: Flower[];
+
+  private readonly searchTerm = signal('');
+
+  protected readonly visibleFlowers = computed(() => {
+    const term = this.searchTerm();
+    return this.flowers.filter(flower => flower.name.toLowerCase().includes(term));
+  });
 
   constructor(flowerService: FlowerService, changeDetector: ChangeDetectorRef) {
     this.flowers = flowerService.getAll();
@@ -29,6 +36,16 @@ export class HomeComponent {
       }
       changeDetector.markForCheck();
     });
+  }
+
+  protected searchFlowers(query: string): void {
+    this.searchTerm.set(query.trim().toLowerCase());
+  }
+
+  protected clearSearchWhenEmpty(query: string): void {
+    if (!query.trim()) {
+      this.searchFlowers('');
+    }
   }
 
   protected toggleFavorite(flower: Flower): void {

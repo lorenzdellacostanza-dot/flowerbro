@@ -1,5 +1,22 @@
+<form class="flower-search" role="search" (submit)="$event.preventDefault(); searchFlowers(searchInput.value)">
+  <input
+    #searchInput
+    type="search"
+    aria-label="Cerca un fiore per nome"
+    placeholder="Cerca un fiore"
+    (input)="clearSearchWhenEmpty(searchInput.value)"
+  />
+  <button type="submit">Cerca</button>
+</form>
+
+<p class="search-status" role="status">
+  @if (visibleFlowers().length === 0) {
+    Nessun fiore trovato.
+  }
+</p>
+
 <ul>
-  <li *ngFor="let flower of flowers">
+  <li *ngFor="let flower of visibleFlowers()">
     <a routerLink="/flower/{{flower.id}}">
       <img [src]="flower.imageUrl" [alt]="flower.name" />
 
