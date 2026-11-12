@@ -4,7 +4,7 @@ import { Tag } from './app/shared/models/Tag';
 export const sample_flower: Flower[] = [
     {
         id: '1',
-        name: 'Rose',
+        name: 'Rosa',
         price: 10,
         favorite: false,
         origins: ['Italy'],
@@ -16,7 +16,7 @@ export const sample_flower: Flower[] = [
 
     {
         id: '2',
-        name: 'Tulip',
+        name: 'Tulipano',
         price: 8,
         favorite: false,
         origins: ['Netherlands'],
@@ -27,7 +27,7 @@ export const sample_flower: Flower[] = [
 
     {
         id: '3',
-        name: 'Orchid',
+        name: 'Orchidea',
         price: 15,
         favorite: false,
         origins: ['Thailand'],
@@ -38,7 +38,7 @@ export const sample_flower: Flower[] = [
 
     {
         id: '4',
-        name: 'Sunflower',
+        name: 'Girasole',
         price: 12,
         favorite: false,
         origins: ['United States'],
@@ -49,7 +49,7 @@ export const sample_flower: Flower[] = [
 
     {
         id: '5',
-        name: 'Daisy',
+        name: 'Margherita',
         price: 6,
         favorite: false,
         origins: ['Germany'],
@@ -60,7 +60,7 @@ export const sample_flower: Flower[] = [
 
     {
         id: '6',
-        name: 'Lily',
+        name: 'Giglio',
         price: 10,
         favorite: false,
         origins: ['Japan'],
