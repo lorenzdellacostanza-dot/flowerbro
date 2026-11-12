@@ -2,59 +2,82 @@
 
 ## Avvio in locale
 
-Usa Node.js 22.22.3+, 24.15.0+ o 26.x.
+Servono un JDK 25 LTS e una versione di Node.js compatibile con Angular
+(22.22.3+, 24.15.0+ o 26.x). Il Gradle Wrapper è incluso nel progetto.
+Su Windows, imposta `JAVA_HOME` sulla cartella del JDK 25 se nel terminale
+`java -version` indica una versione precedente.
+
+Dalla cartella del progetto, prepara il frontend e la chiave locale.
 
 ```sh
 cd frontend
 npm ci
 npm run setup:local
-npm start
 ```
 
-Apri [localhost:4200](http://localhost:4200/). Il database SQLite viene creato in
-`.flowerbro/auth.sqlite` alla prima registrazione o al primo login. Per provare la build
-SSR locale, esegui `npm run build` e `npm run serve:ssr:frontend` da `frontend`, poi apri
+In un secondo terminale, entra in `backend` e avvia Spring Boot.
+
+```powershell
+.\gradlew.bat bootRun
+```
+
+Su macOS e Linux usa `./gradlew bootRun`. Quando il backend è in ascolto,
+esegui `npm start` nel terminale aperto in `frontend` e visita
+[localhost:4200](http://localhost:4200/).
+
+Per provare Angular SSR in locale, esegui `npm run build` e
+`npm run serve:ssr:frontend` da `frontend` con il backend avviato, poi apri
 [127.0.0.1:4000](http://127.0.0.1:4000/).
 
-`npm run setup:local` genera una chiave casuale in `frontend/.env` al primo avvio.
-Il file `.env` e il database sono esclusi da Git. Conserva la chiave separatamente
-dai backup del database. I profili demo esistenti nel browser vengono rimossi
-quando si apre l’app aggiornata. Per usare il nuovo login occorre registrarsi.
+## Account e database
 
-## Account
+Il backend Java espone registrazione, login, profilo e logout. Angular chiama
+l’API sulla stessa origine e il suo server SSR inoltra le richieste a Spring Boot
+su loopback. Il backend ascolta su `127.0.0.1:8080` per impostazione predefinita.
 
-Il browser usa l’API Express sulla stessa origine. Le password sono salvate
-come hash scrypt con salt casuale. Nome ed email sono cifrati con AES-256-GCM e
-l’indice per la ricerca dell’email è calcolato con HMAC. Il database conserva solo
-l’hash del token di sessione. Il cookie è HttpOnly e SameSite=Strict, con Secure
-in produzione. La sessione scade dopo sette giorni e il logout la revoca.
-Registrazione e login hanno limiti di frequenza.
+Java riutilizza `.flowerbro/auth.sqlite` e la chiave già presente in
+`frontend/.env`. Gli account e le sessioni del backend precedente sono
+compatibili. Conserva la chiave separatamente dai backup del database. Il file
+`.env` e il database sono esclusi da Git.
+
+Le password sono salvate come hash scrypt con salt casuale. Nome ed email
+sono cifrati con AES-256-GCM. L’indice dell’email usa HMAC e il database
+conserva solo l’hash del token di sessione. Il cookie è HttpOnly e
+SameSite=Strict, con Secure in produzione. La sessione scade dopo sette giorni
+e il logout la revoca. Registrazione e login hanno limiti di frequenza.
 
 ## Messa online
 
-La build richiede un host in grado di eseguire Node.js con un disco persistente.
-Il server ascolta su `127.0.0.1:4000` (porta personalizzabile con `PORT`).
-Esegui un’istanza del server dietro un reverse proxy HTTPS sullo stesso host.
-Il proxy deve reindirizzare HTTP a HTTPS e inoltrare il dominio canonico in
-`Host`, sovrascrivendo `X-Forwarded-Proto` e `X-Forwarded-For` con protocollo
-e indirizzo reali. Usa un volume privato e persistente per il database.
+Avvia un’istanza Java e il server Angular SSR sullo stesso host. Usa un disco
+privato e persistente per SQLite. Metti Angular SSR dietro un reverse proxy
+HTTPS che reindirizzi HTTP a HTTPS e inoltri il dominio canonico in `Host`,
+sovrascrivendo `X-Forwarded-Proto` e `X-Forwarded-For` con protocollo e indirizzo
+reali. Il server Angular SSR ascolta su `127.0.0.1:4000` per impostazione predefinita.
 
-Imposta queste variabili nell’ambiente del server.
+Imposta le variabili nell’ambiente dei rispettivi servizi.
 
-| Variabile | Valore |
-| --- | --- |
-| `NODE_ENV` | `production` |
-| `FLOWERBRO_ORIGIN` | Origine HTTPS del sito, per esempio `https://flowerbro.example` |
-| `FLOWERBRO_DB_PATH` | Percorso assoluto del file SQLite sul volume privato, fuori dalla directory del frontend |
-| `FLOWERBRO_DATA_KEY` | Chiave base64url di 32 byte, nel gestore dei segreti dell’host |
+| Variabile | Servizio | Valore |
+| --- | --- | --- |
+| `FLOWERBRO_ORIGIN` | Java e Angular SSR | Origine HTTPS del sito, per esempio `https://flowerbro.example` |
+| `FLOWERBRO_BACKEND_PORT` | Java e Angular SSR | Porta interna del backend, predefinita `8080` |
+| `FLOWERBRO_DB_PATH` | Java | Percorso assoluto del file SQLite sul volume privato, fuori dalla directory del frontend |
+| `FLOWERBRO_DATA_KEY` | Java | Chiave base64url di 32 byte, nel gestore dei segreti dell’host |
+| `SPRING_PROFILES_ACTIVE` | Java | `production` |
+| `NODE_ENV` | Angular SSR | `production` |
+| `PORT` | Angular SSR | Porta del server SSR, predefinita `4000` |
 
-Per creare la chiave di produzione nel tuo ambiente sicuro, esegui questo comando.
+Mantieni la stessa chiave e lo stesso volume tra i rilasci. Per una nuova
+installazione puoi generare una chiave con
+`node -p "require('node:crypto').randomBytes(32).toString('base64url')"`.
+
+Da `backend`, esegui `./gradlew bootJar` (su Windows `.\gradlew.bat bootJar`) e
+avvia il pacchetto con Java 25.
 
 ```sh
-node -p "require('node:crypto').randomBytes(32).toString('base64url')"
+java --enable-native-access=ALL-UNNAMED -jar build/libs/flowerbro-backend.jar
 ```
 
-Da `frontend`, esegui `npm ci`, `npm run build` e `npm run serve:ssr:frontend`.
-Mantieni la stessa chiave e lo stesso volume tra i rilasci. Il checkout è una
-simulazione. La verifica dell’indirizzo email e il recupero password richiedono
-l’integrazione di un servizio email.
+Da `frontend`, esegui `npm ci --include=dev`, `npm run build` e
+`npm run serve:ssr:frontend`. Il checkout è una simulazione. La verifica
+dell’indirizzo email e il recupero password richiedono l’integrazione
+di un servizio email.

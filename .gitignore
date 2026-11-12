@@ -9,3 +9,6 @@ node_modules/
 *.sqlite3-*
 *.db
 *.db-*
+
+/backend/.gradle/
+/backend/build/

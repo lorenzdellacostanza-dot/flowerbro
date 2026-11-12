@@ -6,7 +6,7 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
-import { createAccountApi, readPublicOrigin } from './account-api';
+import { createAccountProxy } from './account-proxy';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 const isServerEntry = isMainModule(import.meta.url) || !!process.env['pm_id'];
@@ -15,7 +15,6 @@ const publicOrigin = readPublicOrigin();
 if (isServerEntry && productionMode && !publicOrigin) {
   throw new Error('FLOWERBRO_ORIGIN è obbligatorio in produzione.');
 }
-const accountApi = createAccountApi(publicOrigin);
 const app = express();
 const angularApp = new AngularNodeAppEngine(
   publicOrigin
@@ -50,7 +49,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/account', accountApi.router);
+app.use('/api/account', createAccountProxy(publicOrigin));
 app.use('/api', (_req, res) => {
   res.set('Cache-Control', 'no-store').status(404).json({ error: 'Pagina non trovata.' });
 });
@@ -76,12 +75,22 @@ app.use((req, res, next) => {
 });
 
 if (isServerEntry) {
-  accountApi.initialize();
   const port = Number(process.env['PORT'] || 4000);
   app.listen(port, '127.0.0.1', (error) => {
     if (error) throw error;
     console.log('Flower Bro in ascolto su http://127.0.0.1:' + port);
   });
+}
+
+function readPublicOrigin(): URL | undefined {
+  const configured = process.env['FLOWERBRO_ORIGIN'];
+  if (!configured) return undefined;
+
+  const url = new URL(configured);
+  if (url.protocol !== 'https:' || configured !== url.origin) {
+    throw new Error('FLOWERBRO_ORIGIN deve essere l’origine HTTPS, senza percorso.');
+  }
+  return url;
 }
 
 export const reqHandler = createNodeRequestHandler(app);
