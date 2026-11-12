@@ -10,45 +10,46 @@
         <nav class="profile-actions" aria-label="Azioni del profilo">
           <a class="btn" routerLink="/preferiti"><app-icon name="heart" /> I miei preferiti</a>
           <a class="btn btn-outline" routerLink="/" fragment="catalogo">Vai al catalogo</a>
-          <button class="text-link sign-out" type="button" (click)="account.signOut()">Esci dall’account</button>
+          <button class="text-link sign-out" type="button" [disabled]="account.signingOut()" (click)="signOut()">
+            {{ account.signingOut() ? 'Uscita in corso…' : 'Esci dall’account' }}
+          </button>
         </nav>
+        <p class="form-error" role="alert">{{ error() }}</p>
       } @else {
         <header class="page-title">
           <h1>{{ register ? 'Registrati' : 'Accedi' }}</h1>
         </header>
 
-        <p class="form-note">Account demo. Usa dati di prova.</p>
-
-        <form class="account-form" (submit)="submit($event)">
+        <form class="account-form" method="post" [attr.aria-busy]="!account.ready() || pending()" (submit)="submit($event)">
           @if (register) {
             <label class="field">
               Nome
-              <input name="name" type="text" autocomplete="given-name" maxlength="80" required>
+              <input name="name" type="text" autocomplete="given-name" maxlength="80" [disabled]="!account.ready()" required>
             </label>
           }
           <label class="field">
             Email
-            <input name="email" type="email" autocomplete="username" maxlength="254" required>
+            <input name="email" type="email" autocomplete="username" maxlength="254" [disabled]="!account.ready()" required>
           </label>
           <div class="field">
             <label for="account-password">Password</label>
             <div class="password-field">
               <input id="account-password" name="password" [type]="passwordVisible() ? 'text' : 'password'"
                 [attr.autocomplete]="register ? 'new-password' : 'current-password'"
-                [attr.minlength]="register ? 8 : null" maxlength="128" required
+                [attr.minlength]="register ? 15 : null" maxlength="128" [disabled]="!account.ready()" required
                 [attr.aria-describedby]="register ? 'password-hint' : null">
               <button type="button" class="icon-button" [attr.aria-label]="passwordVisible() ? 'Nascondi password' : 'Mostra password'"
-                (click)="passwordVisible.set(!passwordVisible())">
+                [disabled]="!account.ready()" (click)="passwordVisible.set(!passwordVisible())">
                 <app-icon [name]="passwordVisible() ? 'eye-off' : 'eye'" />
               </button>
             </div>
             @if (register) {
-              <small id="password-hint">Almeno 8 caratteri.</small>
+              <small id="password-hint">Almeno 15 caratteri.</small>
             }
           </div>
           <p class="form-error" role="alert">{{ error() }}</p>
-          <button class="btn" type="submit" [disabled]="pending()">
-            {{ pending() ? 'Attendi…' : register ? 'Crea account' : 'Accedi' }}
+          <button class="btn" type="submit" [disabled]="!account.ready() || pending()">
+            {{ !account.ready() || pending() ? 'Attendi…' : register ? 'Crea account' : 'Accedi' }}
             <app-icon name="arrow-right" />
           </button>
         </form>

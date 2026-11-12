@@ -13,7 +13,7 @@
     </header>
     @if (cart.items().length) {
       <div class="order-layout">
-        <form id="delivery-form" class="delivery-form" (submit)="placeOrder($event)">
+        <form id="delivery-form" class="delivery-form" method="post" (submit)="placeOrder($event)">
           <h2>Dati di consegna</h2>
           <p class="form-note">Usa dati di prova per simulare un ordine.</p>
           <label class="field">
@@ -22,7 +22,8 @@
           </label>
           <label class="field">
             Email
-            <input name="email" type="email" autocomplete="email" maxlength="254" [value]="account.profile()?.email ?? ''" required>
+            <input #emailInput name="email" type="email" autocomplete="email" maxlength="254"
+              [value]="email() ?? account.profile()?.email ?? ''" (input)="email.set(emailInput.value)" required>
           </label>
           <label class="field">
             Via e numero civico

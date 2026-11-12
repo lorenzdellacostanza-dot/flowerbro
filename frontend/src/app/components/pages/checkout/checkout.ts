@@ -1,8 +1,8 @@
 import { CurrencyPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AccountService } from '../../../services/account.service';
 import { CartService } from '../../../services/cart.service';
-import { DemoAccountService } from '../../../services/demo-account.service';
 import { Icon } from '../../partials/icon/icon';
 
 @Component({
@@ -13,7 +13,8 @@ import { Icon } from '../../partials/icon/icon';
 })
 export class Checkout {
   protected readonly cart = inject(CartService);
-  protected readonly account = inject(DemoAccountService);
+  protected readonly account = inject(AccountService);
+  protected readonly email = signal<string | null>(null);
   protected readonly receipt = signal<{ count: number; total: number } | null>(null);
   protected readonly error = signal('');
 

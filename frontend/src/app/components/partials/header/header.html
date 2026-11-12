@@ -42,7 +42,12 @@
           @if (account.profile(); as profile) {
             <p class="account-name">Ciao, {{ profile.name }}</p>
             <a routerLink="/profilo" (click)="accountOpen.set(false)">Il mio profilo <app-icon name="arrow-right" /></a>
-            <button type="button" (click)="signOut()">Esci</button>
+            <button type="button" [disabled]="account.signingOut()" (click)="signOut()">
+              {{ account.signingOut() ? 'Uscita in corso…' : 'Esci' }}
+            </button>
+            @if (signOutError()) {
+              <p class="form-error" role="alert">{{ signOutError() }}</p>
+            }
           } @else {
             <a routerLink="/login" (click)="accountOpen.set(false)">Accedi <app-icon name="arrow-right" /></a>
             <a routerLink="/registrati" (click)="accountOpen.set(false)">Registrati <app-icon name="arrow-right" /></a>
