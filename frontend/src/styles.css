@@ -1,23 +1,272 @@
-/* You can add global styles to this file, and also import other style files */
-
-@import url("https://fonts.googleapis.com/css2?family=Quicksand&display=swap");
-*
-{
-    box-sizing: border-box;
-}
-html {
-  font-size: 16px;
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif.woff2") format("woff2");
+  font-display: swap;
 }
 
-html,
-button {
-  font-family: "Quicksand", "sans-serif";
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif-italic.woff2") format("woff2");
+  font-style: italic;
+  font-display: swap;
 }
+
+@font-face {
+  font-family: Quicksand;
+  src: url("/fonts/quicksand.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+  --paper: #fcfaf6;
+  --surface: #fffefa;
+  --ink: #302823;
+  --muted: #6b5b55;
+  --rose: #8f2e4d;
+  --rose-dark: #76213c;
+  --blush: #f7e6e8;
+  --sage: #e9eee3;
+  --sage-ink: #3e5140;
+  --line: #e7ded7;
+  --display: "Instrument Serif", Georgia, serif;
+  --content: 75rem;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --radius: 1.25rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background-color: #edf3ea;
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 1rem/1.55 Quicksand, system-ui, sans-serif;
 }
-a {
-    text-decoration: none;
+
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+p, h1, h2, h3 { margin: 0; }
+
+h1, h2, h3 {
+  font-family: var(--display);
+  font-weight: 400;
+  line-height: 1.02;
+}
+
+:focus-visible {
+  outline: 2px solid var(--rose);
+  outline-offset: 3px;
+}
+
+.shell {
+  width: min(var(--content), calc(100% - var(--gutter) * 2));
+  margin-inline: auto;
+}
+
+.page {
+  padding-block: clamp(2rem, 5vw, 4rem) clamp(4rem, 7vw, 6rem);
+}
+
+.page-title {
+  margin-bottom: 2rem;
+}
+
+.page-title h1 { font-size: clamp(3.4rem, 7vw, 4.8rem); }
+.page-title p { margin-top: .55rem; color: var(--muted); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  min-height: 3rem;
+  padding: .65rem 1.2rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--rose);
+  color: white;
+  font-size: .91rem;
+  font-weight: 700;
+  text-align: center;
+  transition: background-color .18s, border-color .18s;
+}
+
+.btn:hover { background: var(--rose-dark); }
+.btn:disabled { opacity: .62; }
+
+.btn-outline {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--rose);
+}
+
+.btn-outline:hover { border-color: var(--rose); background: var(--blush); }
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  transition: background-color .18s, color .18s;
+}
+
+.icon-button:hover { background: var(--blush); color: var(--rose); }
+
+.favorite-button {
+  border-color: rgb(143 46 77 / 12%);
+  background: var(--surface);
+  color: var(--rose);
+}
+
+.favorite-button[aria-pressed="true"] { background: var(--rose); color: white; }
+.favorite-button[aria-pressed="true"] app-icon svg { fill: currentColor; }
+
+.text-link {
+  color: var(--rose);
+  text-decoration: underline;
+  text-underline-offset: .22em;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 1.35rem;
+  color: var(--muted);
+  font-size: .9rem;
+}
+.back-link:hover { color: var(--rose); }
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.9rem, 2.5vw, 1.55rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.product-grid li { min-width: 0; }
+
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: .8rem;
+  padding: clamp(2rem, 6vw, 4rem) 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+}
+
+.empty-state > app-icon {
+  --icon-size: 1.6rem;
+  padding: .9rem;
+  border-radius: 50%;
+  background: var(--blush);
+  color: var(--rose);
+}
+
+.empty-state h2 { font-size: 2.6rem; }
+.empty-state p { max-width: 31rem; color: var(--muted); }
+.empty-state .btn { margin-top: .35rem; }
+
+.field {
+  display: grid;
+  gap: .35rem;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.field input, .field textarea {
+  width: 100%;
+  min-height: 3rem;
+  padding: .65rem .85rem;
+  border: 1px solid #d9cdc6;
+  border-radius: .65rem;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.field textarea { resize: vertical; }
+.field small { color: var(--muted); font-weight: 600; }
+
+.form-note {
+  padding: .65rem .85rem;
+  border-radius: .65rem;
+  background: var(--sage);
+  color: var(--sage-ink);
+  font-size: .85rem;
+}
+
+.form-error { color: #962943; font-size: .9rem; font-weight: 700; }
+
+.order-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, .48fr);
+  align-items: start;
+  gap: clamp(1.25rem, 4vw, 2.75rem);
+}
+
+.order-summary {
+  display: grid;
+  gap: .85rem;
+  padding: 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.order-summary h2 { font-size: 2rem; }
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin: 0;
+}
+
+.summary-total {
+  padding-top: .75rem;
+  border-top: 1px solid var(--line);
+  font-weight: 700;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 50rem) {
+  .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .order-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 22rem) {
+  .product-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; }
 }

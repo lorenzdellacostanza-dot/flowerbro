@@ -1,5 +1,52 @@
 :host {
   display: flex;
+  min-height: 100vh;
   flex-direction: column;
-  min-height: 100dvh;
+}
+
+main { flex: 1; min-width: 0; }
+main:focus { outline: none; }
+
+.skip-link {
+  position: fixed;
+  top: .6rem;
+  left: .6rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  padding: .55rem .85rem;
+  border-radius: .4rem;
+  background: var(--ink);
+  color: white;
+}
+.skip-link:focus { transform: none; }
+
+.site-footer {
+  padding-block: 1.85rem;
+  border-top: 1px solid #dae1d6;
+  background: var(--sage);
+  color: var(--sage-ink);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  color: var(--ink);
+  font: 400 1.85rem/1 var(--display);
+}
+.footer-brand app-icon { --icon-size: 1.6rem; color: var(--rose); }
+
+nav { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; font-size: .9rem; }
+nav a:hover { color: var(--rose); }
+small { white-space: nowrap; }
+
+@media (max-width: 39rem) {
+  .footer-inner { flex-direction: column; align-items: flex-start; }
 }

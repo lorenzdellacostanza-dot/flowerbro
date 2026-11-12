@@ -1,0 +1,37 @@
+@let item = flower();
+@let saved = favorites.isFavorite(item);
+<article class="flower-card">
+  <div class="card-image">
+    <a [routerLink]="['/flower', item.id]" tabindex="-1" aria-hidden="true">
+      <img [src]="item.imageUrl" alt="" width="880" height="880" loading="lazy" decoding="async">
+    </a>
+    <button
+      class="icon-button favorite-button"
+      type="button"
+      [attr.aria-label]="'Preferito, ' + item.name"
+      [attr.aria-pressed]="saved"
+      (click)="favorites.toggle(item)"
+    >
+      <app-icon name="heart" />
+    </button>
+  </div>
+  <div class="card-body">
+    <div class="card-heading">
+      <h3><a [routerLink]="['/flower', item.id]">{{ item.name }}</a></h3>
+      <strong>{{ item.price | currency:'EUR' }}</strong>
+    </div>
+    @if (item.origins.length) {
+      <p class="origin">{{ item.origins.join(', ') }}</p>
+    }
+    <div class="card-actions">
+      <app-rating [value]="item.stars" />
+      <button type="button" class="btn btn-outline" [attr.aria-label]="'Aggiungi ' + item.name + ' al carrello'" (click)="cart.add(item.id)">
+        <app-icon name="plus" />
+        <span>Aggiungi</span>
+      </button>
+    </div>
+    @if (item.deliveryTime) {
+      <p class="delivery"><app-icon name="clock" /> Consegna in {{ item.deliveryTime }}</p>
+    }
+  </div>
+</article>

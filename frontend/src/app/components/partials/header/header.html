@@ -1,25 +1,59 @@
-<header>
-    <div class ="container">
-        <a routerLink="/" class = "logo" >Flower Bro! </a>
-        <nav>
-            <ul>
-                <li>
-  <a routerLink="/login">Login</a>
-</li>
-<li class="menu-container">
-  <a routerLink="/dashboard">Ilaria</a>
-  <div class="menu">
-    <a routerLink="/profile">Profile</a>
-    <a routerLink="/orders">Orders</a>
-    <a>Logout</a>
-  </div>
-</li>
-<li>
-  <a routerLink="/cart-page">
-    Carrello <span>{{ cart.count() }}</span>
-  </a>
-</li>
-</ul>
-        </nav>
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" routerLink="/" aria-label="Flower Bro!, home">
+      <span class="brand-mark"><app-icon name="flower" /></span>
+      <span>Flower Bro!</span>
+    </a>
+
+    <nav class="site-nav" aria-label="Navigazione principale">
+      <a routerLink="/" routerLinkActive="current" [routerLinkActiveOptions]="activeOptions" ariaCurrentWhenActive="page">Home</a>
+      <a routerLink="/" fragment="catalogo" routerLinkActive="current" [routerLinkActiveOptions]="activeOptions" ariaCurrentWhenActive="location">Catalogo</a>
+      <a routerLink="/preferiti" routerLinkActive="current" ariaCurrentWhenActive="page">Preferiti</a>
+    </nav>
+
+    <div class="header-actions">
+      <a class="icon-button" routerLink="/" fragment="cerca-fiori" aria-label="Cerca nel catalogo" title="Cerca" (click)="focusSearch()">
+        <app-icon name="search" />
+      </a>
+
+      <a class="icon-button mobile-favorites" routerLink="/preferiti" aria-label="Preferiti" title="Preferiti">
+        <app-icon name="heart" />
+      </a>
+
+      <div class="account-area" #accountArea>
+        <button
+          class="icon-button account-trigger"
+          #accountButton
+          type="button"
+          aria-label="Account"
+          title="Account"
+          aria-controls="account-menu"
+          [attr.aria-expanded]="accountOpen()"
+          (click)="accountOpen.set(!accountOpen())"
+        >
+          <app-icon name="account" />
+          @if (account.profile()) {
+            <span class="signed-in" aria-hidden="true"></span>
+          }
+        </button>
+        <div id="account-menu" class="account-menu" [hidden]="!accountOpen()">
+          @if (account.profile(); as profile) {
+            <p class="account-name">Ciao, {{ profile.name }}</p>
+            <a routerLink="/profilo" (click)="accountOpen.set(false)">Il mio profilo <app-icon name="arrow-right" /></a>
+            <button type="button" (click)="signOut()">Esci</button>
+          } @else {
+            <a routerLink="/login" (click)="accountOpen.set(false)">Accedi <app-icon name="arrow-right" /></a>
+            <a routerLink="/registrati" (click)="accountOpen.set(false)">Registrati <app-icon name="arrow-right" /></a>
+          }
+        </div>
+      </div>
+
+      <a class="cart-link" routerLink="/cart-page" [attr.aria-label]="'Carrello, ' + cart.count() + (cart.count() === 1 ? ' articolo' : ' articoli')">
+        <app-icon name="bag" />
+        <span class="cart-label">Carrello</span>
+        <span class="cart-count" aria-hidden="true">{{ cart.count() > 99 ? '99+' : cart.count() }}</span>
+      </a>
     </div>
+    <span class="visually-hidden" role="status">{{ cart.count() }} {{ cart.count() === 1 ? 'articolo' : 'articoli' }} nel carrello</span>
+  </div>
 </header>

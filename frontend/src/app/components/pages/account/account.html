@@ -1,0 +1,63 @@
+<section class="shell page">
+  <div class="account-layout">
+    <div class="account-photo" aria-hidden="true"></div>
+    <div class="account-content">
+      @if (account.profile(); as profile) {
+        <header class="page-title">
+          <h1>Ciao, {{ profile.name }}!</h1>
+          <p>{{ profile.email }}</p>
+        </header>
+        <nav class="profile-actions" aria-label="Azioni del profilo">
+          <a class="btn" routerLink="/preferiti"><app-icon name="heart" /> I miei preferiti</a>
+          <a class="btn btn-outline" routerLink="/" fragment="catalogo">Vai al catalogo</a>
+          <button class="text-link sign-out" type="button" (click)="account.signOut()">Esci dall’account</button>
+        </nav>
+      } @else {
+        <header class="page-title">
+          <h1>{{ register ? 'Registrati' : 'Accedi' }}</h1>
+        </header>
+
+        <p class="form-note">Account demo. Usa dati di prova.</p>
+
+        <form class="account-form" (submit)="submit($event)">
+          @if (register) {
+            <label class="field">
+              Nome
+              <input name="name" type="text" autocomplete="given-name" maxlength="80" required>
+            </label>
+          }
+          <label class="field">
+            Email
+            <input name="email" type="email" autocomplete="username" maxlength="254" required>
+          </label>
+          <div class="field">
+            <label for="account-password">Password</label>
+            <div class="password-field">
+              <input id="account-password" name="password" [type]="passwordVisible() ? 'text' : 'password'"
+                [attr.autocomplete]="register ? 'new-password' : 'current-password'"
+                [attr.minlength]="register ? 8 : null" maxlength="128" required
+                [attr.aria-describedby]="register ? 'password-hint' : null">
+              <button type="button" class="icon-button" [attr.aria-label]="passwordVisible() ? 'Nascondi password' : 'Mostra password'"
+                (click)="passwordVisible.set(!passwordVisible())">
+                <app-icon [name]="passwordVisible() ? 'eye-off' : 'eye'" />
+              </button>
+            </div>
+            @if (register) {
+              <small id="password-hint">Almeno 8 caratteri.</small>
+            }
+          </div>
+          <p class="form-error" role="alert">{{ error() }}</p>
+          <button class="btn" type="submit" [disabled]="pending()">
+            {{ pending() ? 'Attendi…' : register ? 'Crea account' : 'Accedi' }}
+            <app-icon name="arrow-right" />
+          </button>
+        </form>
+        @if (register) {
+          <p class="switch-mode">Hai già un account? <a class="text-link" routerLink="/login">Accedi</a></p>
+        } @else {
+          <p class="switch-mode">È la tua prima visita? <a class="text-link" routerLink="/registrati">Registrati</a></p>
+        }
+      }
+    </div>
+  </div>
+</section>

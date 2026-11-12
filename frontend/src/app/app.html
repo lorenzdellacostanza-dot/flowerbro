@@ -1,2 +1,21 @@
-<app-header></app-header>
-<router-outlet></router-outlet>
+<a class="skip-link" href="#contenuto">Vai al contenuto</a>
+<app-header />
+
+<main id="contenuto" tabindex="-1">
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <div class="shell footer-inner">
+    <a class="footer-brand" routerLink="/" aria-label="Flower Bro!, home">
+      <app-icon name="flower" />
+      Flower Bro!
+    </a>
+    <nav aria-label="Link a fondo pagina">
+      <a routerLink="/" fragment="catalogo">Catalogo</a>
+      <a routerLink="/preferiti">Preferiti</a>
+      <a routerLink="/cart-page">Carrello</a>
+    </nav>
+    <small>© Flower Bro!</small>
+  </div>
+</footer>

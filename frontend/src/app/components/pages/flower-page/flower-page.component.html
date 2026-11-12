@@ -1,69 +1,63 @@
-@if (flower(); as flower) {
-  <main class="flower-detail">
-    <img class="flower-photo" [src]="flower.imageUrl" [alt]="flower.name" />
+<section class="shell page">
+  <a class="back-link" routerLink="/" fragment="catalogo"><app-icon name="arrow-left" /> Catalogo</a>
 
-    <div class="details">
-      <div class="title-row">
-        <h1>{{ flower.name }}</h1>
-        <button
-          type="button"
-          class="favorite"
-          [attr.aria-label]="'Mi piace per ' + flower.name"
-          [attr.aria-pressed]="favorites.isFavorite(flower)"
-          (click)="favorites.toggle(flower)"
-        >
-          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
-            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0l-1 1-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1 7.8 7.8 7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8Z" />
-          </svg>
-        </button>
-      </div>
+  @if (flower(); as flower) {
+    <div class="detail-layout">
+      <img class="flower-photo" [src]="flower.imageUrl" [alt]="flower.name" width="880" height="880" fetchpriority="high">
 
-      <div
-        class="stars"
-        role="img"
-        [attr.aria-label]="flower.stars + ' stelle su 5'"
-        [style.--rating]="flower.stars"
-      >
-        <span aria-hidden="true">★★★★★</span>
-        <span class="stars-fill" aria-hidden="true">★★★★★</span>
-      </div>
+      <div class="details">
+        <div class="detail-heading">
+          <h1>{{ flower.name }}</h1>
+          <button
+            type="button"
+            class="icon-button favorite-button"
+            [attr.aria-label]="'Preferito, ' + flower.name"
+            [attr.aria-pressed]="favorites.isFavorite(flower)"
+            (click)="favorites.toggle(flower)"
+          ><app-icon name="heart" /></button>
+        </div>
+        <app-rating [value]="flower.stars" />
 
-      @if (flower.origins.length) {
-        <ul class="labels origins" aria-label="Provenienza">
-          @for (origin of flower.origins; track origin) {
-            <li>{{ origin }}</li>
+        @if (flower.description) {
+          <p class="description">{{ flower.description }}</p>
+        }
+
+        @if (flower.tags?.length) {
+          <ul class="tags" aria-label="Caratteristiche">
+            @for (tag of flower.tags; track tag) {
+              <li>{{ tagLabels[tag] || tag }}</li>
+            }
+          </ul>
+        }
+
+        <dl class="facts">
+          @if (flower.origins.length) {
+            <div><dt>Provenienza</dt><dd>{{ flower.origins.join(', ') }}</dd></div>
           }
-        </ul>
-      }
-
-      @if (flower.tags?.length) {
-        <ul class="labels tags" aria-label="Categorie">
-          @for (tag of flower.tags; track tag) {
-            <li>{{ tag }}</li>
+          @if (flower.deliveryTime; as deliveryTime) {
+            <div><dt>Consegna</dt><dd>{{ deliveryTime }}</dd></div>
           }
-        </ul>
-      }
+        </dl>
 
-      @if (flower.deliveryTime; as deliveryTime) {
-        <p>Consegna in <strong>{{ deliveryTime }}</strong></p>
-      }
-
-      <p class="price">Prezzo: <strong>{{ flower.price | currency:'EUR' }}</strong></p>
-      <div>
-        <button type="button" class="add-to-cart" (click)="cart.add(flower.id)">
-          Aggiungi al carrello
-        </button>
-        <p class="cart-status" role="status">
+        <div class="buy">
+          <p class="price">{{ flower.price | currency:'EUR' }} <small>/ fiore</small></p>
+          <button type="button" class="btn" (click)="cart.add(flower.id)">
+            <app-icon name="bag" /> Aggiungi al carrello
+          </button>
           @if (cart.quantity(flower.id); as quantity) {
-            {{ quantity }} nel carrello
+            <div class="cart-status">
+              <span>{{ quantity }} nel carrello</span>
+              <a class="text-link" routerLink="/cart-page">Vedi carrello</a>
+            </div>
           }
-        </p>
+        </div>
       </div>
     </div>
-  </main>
-} @else {
-  <main class="not-found">
-    <h1>Fiore non trovato</h1>
-    <a class="back-to-catalog" routerLink="/">Torna al catalogo</a>
-  </main>
-}
+  } @else {
+    <div class="empty-state">
+      <app-icon name="flower" />
+      <h1>Fiore non trovato</h1>
+      <a class="btn" routerLink="/" fragment="catalogo">Torna al catalogo</a>
+    </div>
+  }
+</section>

@@ -1,0 +1,69 @@
+<section class="shell page">
+  @if (receipt(); as order) {
+    <div class="empty-state confirmation" role="status">
+      <app-icon name="check" />
+      <h1>Ordine demo confermato</h1>
+      <p>{{ order.count }} {{ order.count === 1 ? 'articolo' : 'articoli' }} · Totale {{ order.total | currency:'EUR' }}</p>
+      <a class="btn" routerLink="/" fragment="catalogo">Torna al catalogo <app-icon name="arrow-right" /></a>
+    </div>
+  } @else {
+    <a class="back-link" routerLink="/cart-page"><app-icon name="arrow-left" /> Carrello</a>
+    <header class="page-title">
+      <h1>Consegna</h1>
+    </header>
+    @if (cart.items().length) {
+      <div class="order-layout">
+        <form id="delivery-form" class="delivery-form" (submit)="placeOrder($event)">
+          <h2>Dati di consegna</h2>
+          <p class="form-note">Usa dati di prova per simulare un ordine.</p>
+          <label class="field">
+            Nome e cognome del destinatario
+            <input name="recipient" autocomplete="shipping name" maxlength="100" required>
+          </label>
+          <label class="field">
+            Email
+            <input name="email" type="email" autocomplete="email" maxlength="254" [value]="account.profile()?.email ?? ''" required>
+          </label>
+          <label class="field">
+            Via e numero civico
+            <input name="street" autocomplete="shipping street-address" maxlength="150" required>
+          </label>
+          <div class="address-row">
+            <label class="field">
+              CAP
+              <input name="postcode" autocomplete="shipping postal-code" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" required>
+            </label>
+            <label class="field">
+              Città
+              <input name="city" autocomplete="shipping address-level2" maxlength="100" required>
+            </label>
+          </div>
+          <label class="field">
+            Messaggio per il biglietto (facoltativo)
+            <textarea name="message" rows="3" maxlength="200"></textarea>
+          </label>
+          @if (error()) {
+            <p class="form-error" role="alert">{{ error() }}</p>
+          }
+        </form>
+        <aside class="order-summary" aria-labelledby="checkout-summary-title">
+          <h2 id="checkout-summary-title">Il tuo ordine</h2>
+          <ul class="order-items">
+            @for (item of cart.items(); track item.flower.id) {
+              <li class="summary-row"><span>{{ item.quantity }} × {{ item.flower.name }}</span><strong>{{ item.subtotal | currency:'EUR' }}</strong></li>
+            }
+          </ul>
+          <p class="summary-row summary-total"><span>Totale demo</span><strong>{{ cart.total() | currency:'EUR' }}</strong></p>
+          <button class="btn" type="submit" form="delivery-form">Conferma ordine demo <app-icon name="arrow-right" /></button>
+        </aside>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <app-icon name="bag" />
+        <h2>Il carrello è vuoto</h2>
+        <p>Aggiungi un fiore per proseguire alla consegna.</p>
+        <a class="btn" routerLink="/" fragment="catalogo">Torna al catalogo</a>
+      </div>
+    }
+  }
+</section>

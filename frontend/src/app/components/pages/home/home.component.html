@@ -1,68 +1,61 @@
-<form class="flower-search" role="search" (submit)="$event.preventDefault(); searchFlowers(searchInput.value)">
-  <input
-    #searchInput
-    type="search"
-    aria-label="Cerca un fiore per nome"
-    placeholder="Cerca un fiore"
-    (input)="clearSearchWhenEmpty(searchInput.value)"
-  />
-  <button type="submit">Cerca</button>
-</form>
-
-<p class="search-status" role="status">
-  @if (visibleFlowers().length === 0) {
-    Nessun fiore trovato.
-  }
-</p>
-
-<ul>
-  <li *ngFor="let flower of visibleFlowers()">
-    <a routerLink="/flower/{{flower.id}}">
-      <img [src]="flower.imageUrl" [alt]="flower.name" />
-
-      <div class="content">
-        <div class="name">
-          {{ flower.name }}
-        </div>
-
-        <div
-          class="stars"
-          role="img"
-          [attr.aria-label]="flower.stars + ' out of 5 stars'"
-          [style.--rating]="flower.stars"
-        >
-          <span aria-hidden="true">★★★★★</span>
-          <span class="stars-fill" aria-hidden="true">★★★★★</span>
-        </div>
-
-        <div class="product-item-footer">
-          <div class="origins">
-            <span *ngFor="let origin of flower.origins">
-              {{ origin }}
-            </span>
-          </div>
-
-          @if (flower.deliveryTime; as deliveryTime) {
-            <div class="delivery-time">
-              <span aria-hidden="true">🕒</span>
-              Consegna in {{ deliveryTime }}
-            </div>
-          }
-        </div>
-
-        <div class="price">
-          <span>{{ flower.price | currency:'EUR' }}</span>
-        </div>
-      </div>
+<section class="shell hero" aria-labelledby="home-title">
+  <div class="hero-copy">
+    <h1 id="home-title">Dillo con <em>un fiore.</em></h1>
+    <p>Dalla rosa al girasole, trova il fiore giusto da regalare o da tenere per te.</p>
+    <a class="btn" routerLink="/" fragment="catalogo">
+      Esplora il catalogo <app-icon name="arrow-right" />
     </a>
-    <button
-      type="button"
-      class="favorite"
-      [attr.aria-label]="'Mi piace per ' + flower.name"
-      [attr.aria-pressed]="favorites.isFavorite(flower)"
-      (click)="favorites.toggle(flower)"
-    >
-      <span aria-hidden="true">{{ favorites.isFavorite(flower) ? '♥' : '♡' }}</span>
-    </button>
-  </li>
-</ul>
+  </div>
+  <img class="hero-photo" src="bouquet.webp" width="1440" height="960" alt="Bouquet di rose e tulipani rosa avvolto in carta chiara" fetchpriority="high">
+</section>
+
+<section id="catalogo" class="catalog" aria-labelledby="catalog-title">
+  <div class="shell">
+    <div class="catalog-heading">
+      <div>
+        <h2 id="catalog-title">Scegli i tuoi fiori</h2>
+        <p class="results" role="status">{{ visibleFlowers().length }} {{ visibleFlowers().length === 1 ? 'fiore' : 'fiori' }}</p>
+      </div>
+      <form class="flower-search" role="search" (submit)="$event.preventDefault(); searchFlowers(searchInput.value)">
+        <app-icon name="search" />
+        <label class="visually-hidden" for="cerca-fiori">Cerca un fiore per nome</label>
+        <input #searchInput id="cerca-fiori" type="search" placeholder="Cerca un fiore"
+          (input)="!searchInput.value.trim() && searchFlowers('')">
+        <button type="submit">Cerca</button>
+      </form>
+    </div>
+
+    <div class="catalog-tools">
+      <div class="filters" role="group" aria-label="Filtra per categoria">
+        @for (option of categories; track option.id) {
+          <button type="button" [attr.aria-pressed]="category() === option" (click)="category.set(option)">{{ option.label }}</button>
+        }
+      </div>
+      <label class="sort-control">
+        <span class="visually-hidden">Ordina i fiori</span>
+        <select #sortSelect [value]="sort()" (change)="sort.set(sortSelect.value)">
+          <option value="featured">In evidenza</option>
+          <option value="price-ascending">Prezzo crescente</option>
+          <option value="price-descending">Prezzo decrescente</option>
+          <option value="rating">Più apprezzati</option>
+        </select>
+        <app-icon name="chevron" />
+      </label>
+    </div>
+
+    @if (visibleFlowers().length) {
+      <ul class="product-grid" aria-label="Fiori del catalogo">
+        @for (flower of visibleFlowers(); track flower.id) {
+          <li><app-flower-card [flower]="flower" /></li>
+        }
+      </ul>
+    } @else {
+      <div class="empty-state">
+        <app-icon name="search" />
+        <h2>Nessun fiore trovato</h2>
+        <p>Prova con un altro nome o rimuovi i filtri.</p>
+        <button class="btn btn-outline" type="button" (click)="resetFilters(searchInput)">Mostra tutti i fiori</button>
+      </div>
+    }
+  </div>
+</section>

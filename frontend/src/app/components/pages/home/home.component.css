@@ -1,180 +1,118 @@
-:host {
-  display: block;
-  padding: clamp(1.25rem, 3vw, 2.5rem) 1rem;
+.hero {
+  display: grid;
+  grid-template-columns: .87fr 1.13fr;
+  min-height: 26rem;
+  margin-block: clamp(1rem, 2vw, 1.5rem) clamp(1.6rem, 3vw, 2.25rem);
+  overflow: hidden;
+  border: 1px solid #ebd8d7;
+  border-radius: clamp(1.15rem, 2.5vw, 1.65rem);
+  background: #f7e5e4;
 }
+
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(1.75rem, 4vw, 3rem) clamp(2rem, 5vw, 4rem);
+}
+
+.hero h1 {
+  font-size: clamp(4rem, 7vw, 6.15rem);
+  line-height: .88;
+  letter-spacing: -.027em;
+}
+.hero h1 em { display: block; color: var(--rose); }
+.hero p { max-width: 23rem; margin-block: 1.35rem 1.6rem; color: #5d4548; font-size: 1rem; }
+.hero .btn { padding-inline: 1.35rem; }
+
+.hero-photo {
+  width: 100%;
+  height: 100%;
+  max-height: 27rem;
+  object-fit: cover;
+  object-position: center;
+}
+
+.catalog {
+  padding-block: clamp(1.8rem, 3vw, 2.55rem) clamp(3rem, 7vw, 5.5rem);
+  border-top: 1px solid #e3e8de;
+  background: #f2f5ee;
+}
+
+.catalog-heading, .catalog-tools {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: .9rem 1.3rem;
+}
+
+.catalog-heading h2 { font-size: clamp(2.9rem, 5.2vw, 4rem); }
+.results { margin-top: .35rem; color: var(--sage-ink); font-size: .9rem; }
 
 .flower-search {
   display: flex;
-  max-width: 25rem;
-  margin: 0 auto clamp(1.5rem, 3vw, 2rem);
-  border: 1px solid #f4cddd;
+  align-items: center;
+  gap: .55rem;
+  width: min(100%, 24rem);
+  min-height: 3.1rem;
+  padding-left: .85rem;
+  border: 1px solid #d8d9cf;
   border-radius: 999px;
-  background: #fffdfd;
-  box-shadow: 0 0.2rem 0.75rem rgb(53 75 49 / 8%);
+  background: var(--surface);
+  color: var(--muted);
 }
-
-.flower-search:focus-within {
-  border-color: #b83265;
-  box-shadow: 0 0 0 3px rgb(184 50 101 / 18%);
-}
-
-.flower-search input,
-.flower-search button {
-  border: 0;
-  font: inherit;
-}
-
+.flower-search:focus-within { outline: 2px solid var(--rose); outline-offset: 2px; }
 .flower-search input {
   flex: 1;
   min-width: 0;
-  padding: 0.75rem 1rem;
-  border-radius: 999px 0 0 999px;
+  padding: .55rem 0;
+  border: 0;
   background: transparent;
-  color: #382f32;
+  color: var(--ink);
+  font-size: 1rem;
 }
-
-.flower-search input::placeholder {
-  color: #75666b;
-}
-
-.flower-search input:focus {
-  outline: none;
-}
-
+.flower-search input:focus { outline: 0; }
 .flower-search button {
-  padding: 0.75rem 1.25rem;
+  align-self: stretch;
+  padding: 0 1.25rem;
+  border: 0;
   border-radius: 0 999px 999px 0;
-  background: #b83265;
+  background: var(--rose);
   color: white;
-  cursor: pointer;
+  font-size: .9rem;
   font-weight: 700;
 }
+.flower-search button:hover { background: var(--rose-dark); }
+.flower-search button:focus-visible { outline-color: white; outline-offset: -4px; }
 
-.flower-search button:hover {
-  background: #a52152;
-}
+.catalog-tools { align-items: center; margin-block: 1.25rem; }
+.filters { display: flex; flex-wrap: wrap; gap: .5rem; }
 
-.flower-search button:focus-visible {
-  outline: 2px solid white;
-  outline-offset: -4px;
-}
-
-.search-status {
-  margin: 0;
-  color: #53614d;
-  text-align: center;
-}
-
-ul {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.5rem;
-  max-width: 57rem;
-  margin: 0 auto;
-  padding: 0;
-  list-style: none;
-}
-
-li {
-  position: relative;
-  display: flex;
-  width: min(100%, 18rem);
-}
-
-li a {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  overflow: hidden;
-  border: 1px solid #f4cddd;
-  border-radius: 1rem;
-  background: #fffdfd;
-  box-shadow: 0 0.4rem 1.2rem rgb(53 75 49 / 8%);
-  color: #b83265;
-}
-
-.favorite {
-  position: absolute;
-  inset: 0.75rem 0.75rem auto auto;
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
-  border: 1px solid #f4cddd;
-  border-radius: 50%;
-  background: #fffdfd;
-  box-shadow: 0 0.2rem 0.6rem rgb(91 33 53 / 14%);
-  color: #a52152;
-  cursor: pointer;
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
-.favorite:hover {
-  background: #fce6ef;
-  border-color: #d787a7;
-}
-
-.favorite[aria-pressed='true'] {
-  background: #b83265;
-  border-color: #b83265;
-  color: white;
-}
-
-.favorite:focus-visible {
-  outline: 2px solid #a52152;
-  outline-offset: 2px;
-}
-
-img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: contain;
-}
-
-.content {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.75rem 1rem 1rem;
-  text-align: center;
-}
-
-.name {
-  font-size: 1.125rem;
+.filters button, .sort-control select {
+  min-height: 2.75rem;
+  padding: .45rem .95rem;
+  border: 1px solid #d8d9cf;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: .86rem;
   font-weight: 700;
 }
+.filters button:hover { border-color: var(--sage-ink); }
+.filters button[aria-pressed="true"] { border-color: var(--sage-ink); background: var(--sage-ink); color: white; }
 
-.stars {
-  position: relative;
-  width: max-content;
-  color: black;
-  font-size: 22px;
-  letter-spacing: 0.08em;
-  text-align: left;
-}
+.sort-control { position: relative; }
+.sort-control select { appearance: none; padding-right: 2.2rem; cursor: pointer; }
+.sort-control app-icon { position: absolute; inset: 50% .75rem auto auto; transform: translateY(-50%); pointer-events: none; }
 
-.stars-fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: clamp(0%, calc(var(--rating) * 20%), 100%);
-  overflow: hidden;
-  white-space: nowrap;
-  color: red;
-}
-.product-item-footer {
-  display: grid;
-  gap: 0.2rem;
-  font-size: 0.875rem;
-  color: #53614d;
-}
-
-.price {
-  margin-top: auto;
-  font-weight: 700;
+@media (max-width: 44rem) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-copy { padding: 2.05rem 1.5rem; }
+  .hero h1 { font-size: clamp(3.9rem, 12vw, 5.5rem); }
+  .hero p { margin-block: 1.05rem 1.2rem; }
+  .hero-photo { height: auto; max-height: 22rem; aspect-ratio: 3 / 2; }
+  .catalog-heading { align-items: flex-start; flex-direction: column; }
+  .flower-search { width: 100%; }
+  .catalog-tools { align-items: flex-start; flex-direction: column; gap: .65rem; }
 }

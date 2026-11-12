@@ -2,11 +2,12 @@ import { afterNextRender, computed, inject, Injectable, signal } from '@angular/
 import { FlowerService } from './flower.service';
 
 const storageKey = 'flowerbro.cart';
+type Quantities = Partial<Record<string, number>>;
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private readonly flowers = inject(FlowerService).getAll();
-  private readonly quantities = signal<Partial<Record<string, number>>>({});
+  private readonly quantities = signal<Quantities>({});
 
   readonly items = computed(() => this.flowers.flatMap(flower => {
     const quantity = this.quantity(flower.id);
@@ -50,15 +51,26 @@ export class CartService {
     this.setQuantity(flowerId, 0);
   }
 
-  private setQuantity(flowerId: string, quantity: number): void {
+  setQuantity(flowerId: string, quantity: number): void {
+    if (!Number.isSafeInteger(quantity) || quantity < 0 || !this.flowers.some(flower => flower.id === flowerId)) {
+      return;
+    }
+
     const quantities = { ...this.quantities() };
     if (quantity > 0) {
       quantities[flowerId] = quantity;
     } else {
       delete quantities[flowerId];
     }
-    this.quantities.set(quantities);
+    this.saveQuantities(quantities);
+  }
 
+  clear(): void {
+    this.saveQuantities({});
+  }
+
+  private saveQuantities(quantities: Quantities): void {
+    this.quantities.set(quantities);
     try {
       localStorage.setItem(storageKey, JSON.stringify(quantities));
     } catch {

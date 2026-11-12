@@ -1,0 +1,45 @@
+:host { display: block; height: 100%; }
+
+.flower-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 .2rem .8rem rgb(56 30 28 / 3%);
+}
+
+.card-image { position: relative; overflow: hidden; background: var(--blush); }
+.card-image a { display: block; }
+.card-image img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform .28s ease-out;
+}
+.card-image a:hover img { transform: scale(1.035); }
+.favorite-button { position: absolute; top: .85rem; right: .85rem; }
+
+.card-body { display: grid; align-content: start; flex: 1; gap: .25rem; padding: 1rem 1.15rem; }
+.card-heading { display: flex; justify-content: space-between; align-items: baseline; gap: .55rem; }
+.card-heading h3 { font-size: clamp(1.65rem, 4vw, 2.2rem); }
+.card-heading a:hover { color: var(--rose); }
+.card-heading strong { color: var(--rose); font-size: .98rem; white-space: nowrap; }
+.origin { color: var(--muted); font-size: .85rem; }
+.card-actions { display: flex; align-items: center; justify-content: space-between; gap: .35rem; margin-top: .4rem; }
+.card-actions .btn { min-height: 2.6rem; gap: .3rem; padding: .4rem .65rem; font-size: .8rem; }
+.card-actions app-icon, .delivery app-icon { --icon-size: 1rem; }
+.delivery { color: var(--sage-ink); font-size: .78rem; }
+
+@media (max-width: 33rem) {
+  .card-actions { flex-wrap: wrap; }
+  .card-heading { flex-wrap: wrap; row-gap: .25rem; }
+  .card-heading strong { font-size: .88rem; }
+  .favorite-button { top: .5rem; right: .5rem; }
+  .card-actions .btn { width: 2.75rem; min-height: 2.75rem; padding: 0; }
+  .card-actions .btn span { display: none; }
+}

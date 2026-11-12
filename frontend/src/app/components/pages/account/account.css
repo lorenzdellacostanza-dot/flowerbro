@@ -1,0 +1,38 @@
+.account-layout {
+  display: grid;
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1fr);
+  width: min(100%, 54rem);
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 .5rem 2rem rgb(56 30 28 / 5%);
+}
+
+.account-photo {
+  min-height: 28rem;
+  background: var(--blush) url("/assets/flower_images/Tulip.webp") center center / cover no-repeat;
+}
+
+.account-content { padding: clamp(1.45rem, 5vw, 3.15rem); }
+.page-title { margin-bottom: 1.15rem; overflow-wrap: anywhere; }
+.account-form, .profile-actions { display: grid; gap: .9rem; margin-top: 1.15rem; }
+.password-field { position: relative; }
+.password-field input { padding-right: 3rem; }
+.password-field button { position: absolute; top: .125rem; right: .125rem; }
+.form-error:empty { display: none; }
+.switch-mode { margin-top: 1.05rem; color: var(--muted); font-size: .9rem; }
+
+.sign-out {
+  justify-self: center;
+  padding: .45rem;
+  border: 0;
+  background: none;
+  font-size: .9rem;
+}
+
+@media (max-width: 41rem) {
+  .account-layout { grid-template-columns: 1fr; }
+  .account-photo { display: none; }
+}
