@@ -1,4 +1,4 @@
-import { ViewportScroller } from '@angular/common';
+import { DOCUMENT, ViewportScroller } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { Header } from './components/partials/header/header';
@@ -12,6 +12,7 @@ import { Icon } from './components/partials/icon/icon';
 })
 export class App {
   constructor() {
-    inject(ViewportScroller).setOffset([0, 92]);
+    const document = inject(DOCUMENT);
+    inject(ViewportScroller).setOffset(() => [0, document.querySelector('app-header')?.clientHeight ?? 0]);
   }
 }

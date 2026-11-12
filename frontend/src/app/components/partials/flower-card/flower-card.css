@@ -1,45 +1,43 @@
 :host { display: block; height: 100%; }
-
-.flower-card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: 0 .2rem .8rem rgb(56 30 28 / 3%);
-}
-
-.card-image { position: relative; overflow: hidden; background: var(--blush); }
+.flower-card { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+.card-image { position: relative; overflow: hidden; border-radius: var(--radius); background: var(--blush); }
 .card-image a { display: block; }
 .card-image img {
   width: 100%;
   height: auto;
-  aspect-ratio: 5 / 4;
+  aspect-ratio: 8 / 9;
   object-fit: cover;
-  object-position: center top;
-  transition: transform .28s ease-out;
+  transition: transform .3s ease-out;
 }
 .card-image a:hover img { transform: scale(1.035); }
-.favorite-button { position: absolute; top: .85rem; right: .85rem; }
+.favorite-button { position: absolute; top: .55rem; right: .55rem; }
+.favorite-button:focus-visible { outline-offset: 2px; }
 
-.card-body { display: grid; align-content: start; flex: 1; gap: .25rem; padding: 1rem 1.15rem; }
-.card-heading { display: flex; justify-content: space-between; align-items: baseline; gap: .55rem; }
-.card-heading h3 { font-size: clamp(1.65rem, 4vw, 2.2rem); }
-.card-heading a:hover { color: var(--rose); }
-.card-heading strong { color: var(--rose); font-size: .98rem; white-space: nowrap; }
-.origin { color: var(--muted); font-size: .85rem; }
-.card-actions { display: flex; align-items: center; justify-content: space-between; gap: .35rem; margin-top: .4rem; }
-.card-actions .btn { min-height: 2.6rem; gap: .3rem; padding: .4rem .65rem; font-size: .8rem; }
-.card-actions app-icon, .delivery app-icon { --icon-size: 1rem; }
-.delivery { color: var(--sage-ink); font-size: .78rem; }
-
-@media (max-width: 33rem) {
-  .card-actions { flex-wrap: wrap; }
-  .card-heading { flex-wrap: wrap; row-gap: .25rem; }
-  .card-heading strong { font-size: .88rem; }
-  .favorite-button { top: .5rem; right: .5rem; }
-  .card-actions .btn { width: 2.75rem; min-height: 2.75rem; padding: 0; }
-  .card-actions .btn span { display: none; }
+.card-body { display: flex; flex-direction: column; justify-content: space-between; gap: .22rem; padding-block: .8rem .35rem; }
+.card-body h3 { font-size: clamp(1.65rem, 3vw, 2.1rem); }
+.card-body a:hover { color: var(--rose); text-decoration: underline; text-underline-offset: .13em; }
+.card-caption { margin-top: .25rem; color: var(--muted); font-size: .84rem; }
+.card-actions { display: flex; align-items: center; justify-content: space-between; gap: .25rem; }
+.card-price { font-size: .97rem; font-weight: 700; }
+.card-price small { color: var(--muted); font-size: .74rem; font-weight: 600; white-space: nowrap; }
+.add-button { position: relative; border-color: var(--line); background: var(--surface); color: var(--sage-ink); }
+.add-button:hover { border-color: var(--sage-ink); background: var(--sage-ink); color: white; }
+.item-count {
+  position: absolute;
+  top: -.2rem;
+  right: -.12rem;
+  min-width: 1.05rem;
+  padding-inline: .18rem;
+  border-radius: 999px;
+  background: var(--sage-ink);
+  color: white;
+  font-size: .65rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+}
+@media (max-width: 31rem) {
+  .card-body h3 { font-size: 1.62rem; }
+  .card-caption { font-size: .78rem; }
+  .card-price small { display: block; }
+  .favorite-button { top: .35rem; right: .35rem; }
 }

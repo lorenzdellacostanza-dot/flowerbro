@@ -1,58 +1,87 @@
 <section class="shell page">
-  <a class="back-link" routerLink="/" fragment="catalogo"><app-icon name="arrow-left" /> Catalogo</a>
+  @if (flower(); as item) {
+    @let bouquet = item.kind === 'bouquet';
+    <a class="back-link" routerLink="/" [queryParams]="{ tipo: bouquet ? 'bouquet' : 'fiori' }" fragment="catalogo">
+      <app-icon name="arrow-left" /> {{ bouquet ? 'Tutti i bouquet' : 'Tutti i fiori singoli' }}
+    </a>
 
-  @if (flower(); as flower) {
     <div class="detail-layout">
-      <img class="flower-photo" [src]="flower.imageUrl" [alt]="flower.name" width="880" height="880" fetchpriority="high">
+      <img class="flower-photo" [src]="item.imageUrl" [alt]="item.name" width="880" height="880" fetchpriority="high">
 
       <div class="details">
+        <p class="eyebrow">{{ bouquet ? 'Bouquet' : 'Fiore singolo' }}</p>
         <div class="detail-heading">
-          <h1>{{ flower.name }}</h1>
-          <button
-            type="button"
-            class="icon-button favorite-button"
-            [attr.aria-label]="'Preferito, ' + flower.name"
-            [attr.aria-pressed]="favorites.isFavorite(flower)"
-            (click)="favorites.toggle(flower)"
-          ><app-icon name="heart" /></button>
+          <h1>{{ item.name }}</h1>
+          <button type="button" class="icon-button favorite-button" [attr.aria-label]="'Preferito, ' + item.name"
+            [attr.aria-pressed]="favorites.isFavorite(item)" (click)="favorites.toggle(item)">
+            <app-icon name="heart" />
+          </button>
         </div>
-        <app-rating [value]="flower.stars" />
-
-        @if (flower.description) {
-          <p class="description">{{ flower.description }}</p>
+        @if (item.stars) {
+          <app-rating [value]="item.stars" />
         }
 
-        @if (flower.tags?.length) {
+        <p class="price">{{ item.price | currency:'EUR' }} <small>/ {{ bouquet ? 'bouquet' : 'stelo' }}</small></p>
+        @if (item.description) {
+          <p class="description">{{ item.description }}</p>
+        }
+
+        <div class="buy">
+          <div class="quantity" role="group" aria-label="Quantità da aggiungere">
+            <button class="icon-button" type="button" aria-label="Diminuisci quantità"
+              [disabled]="quantity() <= 1" (click)="quantity.set(quantity() - 1)">
+              <app-icon name="minus" />
+            </button>
+            <output>{{ quantity() }}</output>
+            <button class="icon-button" type="button" aria-label="Aumenta quantità" (click)="quantity.set(quantity() + 1)">
+              <app-icon name="plus" />
+            </button>
+          </div>
+          <button type="button" class="btn" (click)="addToCart(item.id)">
+            <app-icon name="bag" /> Aggiungi al carrello
+          </button>
+        </div>
+        @if (cart.quantity(item.id); as inCart) {
+          <div class="cart-status">
+            <span>{{ inCart }} nel carrello</span>
+            <a class="text-link" routerLink="/cart-page">Vedi carrello</a>
+          </div>
+        }
+
+        @if (item.composition || item.origins.length || item.deliveryTime) {
+          <dl class="facts">
+            @if (item.composition) {
+              <div><dt>Composizione</dt><dd>{{ item.composition }}</dd></div>
+            }
+            @if (item.origins.length) {
+              <div><dt>Provenienza</dt><dd>{{ item.origins.join(', ') }}</dd></div>
+            }
+            @if (item.deliveryTime; as deliveryTime) {
+              <div><dt>Consegna</dt><dd>{{ deliveryTime }}</dd></div>
+            }
+          </dl>
+        }
+        @if (item.tags?.length) {
           <ul class="tags" aria-label="Caratteristiche">
-            @for (tag of flower.tags; track tag) {
+            @for (tag of item.tags; track tag) {
               <li>{{ tagLabels[tag] || tag }}</li>
             }
           </ul>
         }
-
-        <dl class="facts">
-          @if (flower.origins.length) {
-            <div><dt>Provenienza</dt><dd>{{ flower.origins.join(', ') }}</dd></div>
-          }
-          @if (flower.deliveryTime; as deliveryTime) {
-            <div><dt>Consegna</dt><dd>{{ deliveryTime }}</dd></div>
-          }
-        </dl>
-
-        <div class="buy">
-          <p class="price">{{ flower.price | currency:'EUR' }} <small>/ fiore</small></p>
-          <button type="button" class="btn" (click)="cart.add(flower.id)">
-            <app-icon name="bag" /> Aggiungi al carrello
-          </button>
-          @if (cart.quantity(flower.id); as quantity) {
-            <div class="cart-status">
-              <span>{{ quantity }} nel carrello</span>
-              <a class="text-link" routerLink="/cart-page">Vedi carrello</a>
-            </div>
-          }
-        </div>
+        <a class="care-link text-link" routerLink="/" fragment="cura">Come prenderti cura dei fiori <app-icon name="arrow-right" /></a>
       </div>
     </div>
+
+    @if (related().length) {
+      <section class="related" aria-labelledby="related-title">
+        <h2 id="related-title" class="section-title">{{ bouquet ? 'Altri bouquet' : 'Altri fiori singoli' }}</h2>
+        <ul class="product-grid">
+          @for (product of related(); track product.id) {
+            <li><app-flower-card [flower]="product" /></li>
+          }
+        </ul>
+      </section>
+    }
   } @else {
     <div class="empty-state">
       <app-icon name="flower" />

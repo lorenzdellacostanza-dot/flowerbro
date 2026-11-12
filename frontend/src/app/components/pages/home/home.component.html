@@ -1,61 +1,82 @@
-<section class="shell hero" aria-labelledby="home-title">
-  <div class="hero-copy">
-    <h1 id="home-title">Dillo con <em>un fiore.</em></h1>
-    <p>Dalla rosa al girasole, trova il fiore giusto da regalare o da tenere per te.</p>
-    <a class="btn" routerLink="/" fragment="catalogo">
-      Esplora il catalogo <app-icon name="arrow-right" />
-    </a>
+<section class="hero" aria-labelledby="home-title">
+  <picture class="hero-art">
+    <source media="(max-width: 43rem)" srcset="editorial/hero-mobile.webp">
+    <img src="editorial/hero.webp" width="1536" height="1024"
+      alt="Peonie rosa, ranuncoli e rose in un vaso di ceramica" fetchpriority="high">
+  </picture>
+  <div class="shell hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">Bouquet e fiori recisi</p>
+      <h1 id="home-title">Dillo con <em>un fiore.</em></h1>
+      <p class="hero-description">Dalle peonie più soffici ai girasoli di campo, trova i fiori giusti per il tuo prossimo regalo.</p>
+      <div class="hero-actions">
+        <a class="btn" routerLink="/" [queryParams]="{ tipo: 'bouquet' }" fragment="catalogo">
+          Scopri i bouquet <app-icon name="arrow-right" />
+        </a>
+        <a class="text-link" routerLink="/" [queryParams]="{ tipo: 'fiori' }" fragment="catalogo">Fiori singoli</a>
+      </div>
+    </div>
   </div>
-  <img class="hero-photo" src="bouquet.webp" width="1440" height="960" alt="Bouquet di rose e tulipani rosa avvolto in carta chiara" fetchpriority="high">
 </section>
 
-<section id="catalogo" class="catalog" aria-labelledby="catalog-title">
-  <div class="shell">
-    <div class="catalog-heading">
-      <div>
-        <h2 id="catalog-title">Scegli i tuoi fiori</h2>
-        <p class="results" role="status">{{ visibleFlowers().length }} {{ visibleFlowers().length === 1 ? 'fiore' : 'fiori' }}</p>
-      </div>
-      <form class="flower-search" role="search" (submit)="$event.preventDefault(); searchFlowers(searchInput.value)">
-        <app-icon name="search" />
-        <label class="visually-hidden" for="cerca-fiori">Cerca un fiore per nome</label>
-        <input #searchInput id="cerca-fiori" type="search" placeholder="Cerca un fiore"
-          (input)="!searchInput.value.trim() && searchFlowers('')">
-        <button type="submit">Cerca</button>
-      </form>
-    </div>
+<app-catalog />
 
-    <div class="catalog-tools">
-      <div class="filters" role="group" aria-label="Filtra per categoria">
-        @for (option of categories; track option.id) {
-          <button type="button" [attr.aria-pressed]="category() === option" (click)="category.set(option)">{{ option.label }}</button>
-        }
-      </div>
-      <label class="sort-control">
-        <span class="visually-hidden">Ordina i fiori</span>
-        <select #sortSelect [value]="sort()" (change)="sort.set(sortSelect.value)">
-          <option value="featured">In evidenza</option>
-          <option value="price-ascending">Prezzo crescente</option>
-          <option value="price-descending">Prezzo decrescente</option>
-          <option value="rating">Più apprezzati</option>
-        </select>
-        <app-icon name="chevron" />
-      </label>
-    </div>
-
-    @if (visibleFlowers().length) {
-      <ul class="product-grid" aria-label="Fiori del catalogo">
-        @for (flower of visibleFlowers(); track flower.id) {
-          <li><app-flower-card [flower]="flower" /></li>
-        }
-      </ul>
-    } @else {
-      <div class="empty-state">
-        <app-icon name="search" />
-        <h2>Nessun fiore trovato</h2>
-        <p>Prova con un altro nome o rimuovi i filtri.</p>
-        <button class="btn btn-outline" type="button" (click)="resetFilters(searchInput)">Mostra tutti i fiori</button>
-      </div>
+<section class="shell occasions" aria-labelledby="occasion-title">
+  <h2 id="occasion-title" class="section-title">Un fiore per l’occasione</h2>
+  <ul class="occasion-grid">
+    @for (occasion of occasions; track occasion.id) {
+      <li>
+        <a class="occasion-card" routerLink="/" [queryParams]="{ occasione: occasion.id }" fragment="catalogo">
+          <img [src]="occasion.imageUrl" alt="" width="880" height="880" loading="lazy" decoding="async">
+          <div class="occasion-copy">
+            <h3>{{ occasion.label }}</h3>
+            <p>{{ occasion.description }}</p>
+          </div>
+          <app-icon name="arrow-right" />
+        </a>
+      </li>
     }
+  </ul>
+</section>
+
+<section id="cura" class="care" tabindex="-1" aria-labelledby="care-title">
+  <div class="shell care-inner">
+    <img class="care-photo" src="editorial/cura-fiori.webp" width="1080" height="810"
+      alt="Mani che tagliano gli steli accanto a un vaso d’acqua" loading="lazy" decoding="async">
+    <div class="care-content">
+      <h2 id="care-title" class="section-title">Come far durare i fiori</h2>
+      <dl>
+        <div>
+          <dt>Prepara il vaso</dt>
+          <dd>Lavalo bene e riempilo con acqua fresca. Togli le foglie che rimarrebbero immerse.</dd>
+        </div>
+        <div>
+          <dt>Accorcia gli steli</dt>
+          <dd>Taglia in diagonale un paio di centimetri con forbici pulite prima di mettere i fiori in acqua.</dd>
+        </div>
+        <div>
+          <dt>Cambia l’acqua</dt>
+          <dd>Rinnovala ogni due giorni e tieni il vaso lontano da sole diretto e termosifoni.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section id="domande" class="shell faq" tabindex="-1" aria-labelledby="faq-title">
+  <h2 id="faq-title" class="section-title">Domande frequenti</h2>
+  <div class="faq-items">
+    <details>
+      <summary>Posso scegliere gli steli singolarmente? <app-icon name="plus" /></summary>
+      <p>Sì. Apri <a class="text-link" routerLink="/" [queryParams]="{ tipo: 'fiori' }" fragment="catalogo">Fiori singoli</a> per scegliere le varietà. Puoi regolare il numero di steli dal carrello.</p>
+    </details>
+    <details>
+      <summary>Posso aggiungere un biglietto? <app-icon name="plus" /></summary>
+      <p>Il modulo di consegna include un campo facoltativo per scrivere una dedica.</p>
+    </details>
+    <details>
+      <summary>Come funziona l’ordine demo? <app-icon name="plus" /></summary>
+      <p>Aggiungi i fiori al carrello e inserisci dati di prova nella pagina Consegna. La simulazione si conclude con un riepilogo, senza addebiti o spedizioni.</p>
+    </details>
   </div>
 </section>

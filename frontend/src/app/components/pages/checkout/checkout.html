@@ -50,7 +50,13 @@
           <h2 id="checkout-summary-title">Il tuo ordine</h2>
           <ul class="order-items">
             @for (item of cart.items(); track item.flower.id) {
-              <li class="summary-row"><span>{{ item.quantity }} × {{ item.flower.name }}</span><strong>{{ item.subtotal | currency:'EUR' }}</strong></li>
+              <li class="summary-row order-item">
+                <a class="order-item-link" [routerLink]="['/flower', item.flower.id]">
+                  <img [src]="item.flower.imageUrl" alt="" width="46" height="46">
+                  <span>{{ item.quantity }} × {{ item.flower.name }}</span>
+                </a>
+                <strong>{{ item.subtotal | currency:'EUR' }}</strong>
+              </li>
             }
           </ul>
           <p class="summary-row summary-total"><span>Totale demo</span><strong>{{ cart.total() | currency:'EUR' }}</strong></p>

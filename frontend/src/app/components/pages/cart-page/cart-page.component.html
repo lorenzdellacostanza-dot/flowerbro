@@ -16,7 +16,7 @@
               <img [src]="item.flower.imageUrl" alt="" width="84" height="84">
               <span>
                 <strong>{{ item.flower.name }}</strong>
-                <small>{{ item.flower.price | currency:'EUR' }} / fiore</small>
+                <small>{{ item.flower.price | currency:'EUR' }} / {{ item.flower.kind === 'bouquet' ? 'bouquet' : 'stelo' }}</small>
               </span>
             </a>
 

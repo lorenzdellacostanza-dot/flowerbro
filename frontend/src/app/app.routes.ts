@@ -1,3 +1,4 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { Account } from './components/pages/account/account';
 import { CartPageComponent } from './components/pages/cart-page/cart-page.component';
@@ -5,10 +6,18 @@ import { Checkout } from './components/pages/checkout/checkout';
 import { Favorites } from './components/pages/favorites/favorites';
 import { FlowerPageComponent } from './components/pages/flower-page/flower-page.component';
 import { HomeComponent } from './components/pages/home/home.component';
+import { FlowerService } from './services/flower.service';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent, pathMatch: 'full', title: 'Flower Bro! | Catalogo di fiori' },
-  { path: 'flower/:id', component: FlowerPageComponent, title: 'Dettaglio fiore | Flower Bro!' },
+  { path: '', component: HomeComponent, pathMatch: 'full', title: 'Flower Bro! | Bouquet e fiori recisi' },
+  {
+    path: 'flower/:id',
+    component: FlowerPageComponent,
+    title: ({ paramMap }) => {
+      const flower = inject(FlowerService).getFlowerById(paramMap.get('id') ?? '');
+      return (flower?.name ?? 'Fiore non trovato') + ' | Flower Bro!';
+    },
+  },
   { path: 'preferiti', component: Favorites, title: 'Preferiti | Flower Bro!' },
   { path: 'cart-page', component: CartPageComponent, title: 'Carrello | Flower Bro!' },
   { path: 'checkout', component: Checkout, title: 'Consegna | Flower Bro!' },

@@ -23,23 +23,11 @@
   gap: .8rem;
 }
 .item-link:hover { color: var(--rose); }
-.item-link img { width: 5rem; height: 5rem; border-radius: .7rem; object-fit: cover; }
+.item-link img { width: 5rem; height: 5rem; border-radius: var(--radius); object-fit: cover; }
 .item-link strong { display: block; font: 400 1.8rem/1 var(--display); }
 .item-link small { display: block; margin-top: .27rem; color: var(--muted); font-size: .82rem; }
 
 .item-controls { display: flex; align-items: center; gap: .7rem; }
-.quantity {
-  display: inline-flex;
-  align-items: center;
-  gap: .2rem;
-  padding: .12rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: .9rem;
-}
-.quantity button { width: 2.35rem; height: 2.35rem; }
-.quantity button:disabled { opacity: .35; background: transparent; color: inherit; }
-.quantity app-icon { --icon-size: 1rem; }
 .item-total { min-width: 5rem; color: var(--rose); font-size: .95rem; text-align: right; white-space: nowrap; }
 .remove-item { color: var(--muted); }
 

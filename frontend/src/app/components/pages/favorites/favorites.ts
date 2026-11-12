@@ -20,7 +20,7 @@ import { Icon } from '../../partials/icon/icon';
       @if (flowers().length) {
         <ul class="product-grid">
           @for (flower of flowers(); track flower.id) {
-            <li><app-flower-card [flower]="flower" /></li>
+            <li><app-flower-card [flower]="flower" [loading]="$index < 4 ? 'eager' : 'lazy'" /></li>
           }
         </ul>
       } @else {

@@ -1,0 +1,64 @@
+<section id="catalogo" class="catalog" tabindex="-1" aria-labelledby="catalog-title">
+  <div class="shell">
+    <header class="catalog-heading">
+      <h2 id="catalog-title" class="section-title">Fiori e bouquet</h2>
+      <p>Scegli una composizione o crea il tuo mazzo, uno stelo alla volta.</p>
+    </header>
+
+    <div class="catalog-bar">
+      <nav class="filters" aria-label="Tipologia di fiori">
+        @for (group of groups; track group.id) {
+          <a routerLink="/" [queryParams]="{ tipo: group.id }" queryParamsHandling="merge"
+            fragment="catalogo" [attr.aria-current]="selectedGroup() === group ? 'true' : null">{{ group.label }}</a>
+        }
+      </nav>
+      <form class="flower-search" role="search" aria-label="Catalogo fiori" (submit)="$event.preventDefault()">
+        <app-icon name="search" />
+        <label class="visually-hidden" for="cerca-fiori">Cerca un fiore o un bouquet</label>
+        <input #searchInput id="cerca-fiori" type="search" placeholder="Cerca fiori e bouquet"
+          [value]="searchTerm()" (input)="searchTerm.set(searchInput.value)">
+      </form>
+    </div>
+
+    <div class="catalog-tools">
+      <p class="results" role="status">{{ visibleFlowers().length }} {{ visibleFlowers().length === 1 ? 'risultato' : 'risultati' }}</p>
+      <div class="selects">
+        <label class="select-control">
+          <span class="visually-hidden">Occasione</span>
+          <select #occasionSelect [value]="selectedOccasion()?.id ?? ''" (change)="filterOccasion(occasionSelect.value)">
+            <option value="">Tutte le occasioni</option>
+            @for (occasion of occasions; track occasion.id) {
+              <option [value]="occasion.id">{{ occasion.label }}</option>
+            }
+          </select>
+          <app-icon name="chevron" />
+        </label>
+        <label class="select-control">
+          <span class="visually-hidden">Ordina il catalogo</span>
+          <select #sortSelect [value]="sort()" (change)="sort.set(sortSelect.value)">
+            <option value="featured">In evidenza</option>
+            <option value="price-ascending">Prezzo crescente</option>
+            <option value="price-descending">Prezzo decrescente</option>
+            <option value="rating">Più apprezzati</option>
+          </select>
+          <app-icon name="chevron" />
+        </label>
+      </div>
+    </div>
+
+    @if (visibleFlowers().length) {
+      <ul class="product-grid" aria-label="Fiori del catalogo">
+        @for (flower of visibleFlowers(); track flower.id) {
+          <li><app-flower-card [flower]="flower" /></li>
+        }
+      </ul>
+    } @else {
+      <div class="empty-state">
+        <app-icon name="search" />
+        <h3>Nessun risultato</h3>
+        <p>Prova a cambiare la ricerca o mostra tutti i fiori.</p>
+        <button class="btn btn-outline" type="button" (click)="resetFilters(searchInput)">Azzera i filtri</button>
+      </div>
+    }
+  </div>
+</section>

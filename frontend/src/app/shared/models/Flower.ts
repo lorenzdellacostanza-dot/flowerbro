@@ -1,6 +1,7 @@
 export class Flower {
   id!: string;
   name!: string;
+  kind!: 'bouquet' | 'stem';
   price!: number;
   tags?: string[];
   favorite!: boolean;
@@ -9,4 +10,5 @@ export class Flower {
   origins!: string[];
   deliveryTime?: string;
   description?: string;
+  composition?: string;
 }

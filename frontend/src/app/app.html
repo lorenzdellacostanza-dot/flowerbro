@@ -6,16 +6,30 @@
 </main>
 
 <footer class="site-footer">
-  <div class="shell footer-inner">
-    <a class="footer-brand" routerLink="/" aria-label="Flower Bro!, home">
-      <app-icon name="flower" />
-      Flower Bro!
-    </a>
-    <nav aria-label="Link a fondo pagina">
-      <a routerLink="/" fragment="catalogo">Catalogo</a>
-      <a routerLink="/preferiti">Preferiti</a>
-      <a routerLink="/cart-page">Carrello</a>
-    </nav>
-    <small>© Flower Bro!</small>
+  <div class="shell">
+    <div class="footer-inner">
+      <a class="footer-brand" routerLink="/" aria-label="Flower Bro!, home">
+        <app-icon name="flower" />
+        Flower Bro!
+      </a>
+      <nav class="footer-links" aria-label="Catalogo a fondo pagina">
+        <h2>Esplora</h2>
+        <a routerLink="/" fragment="catalogo">Tutti i fiori</a>
+        <a routerLink="/" [queryParams]="{ tipo: 'bouquet' }" fragment="catalogo">Bouquet</a>
+        <a routerLink="/" [queryParams]="{ tipo: 'fiori' }" fragment="catalogo">Fiori singoli</a>
+      </nav>
+      <nav class="footer-links" aria-label="Guida a fondo pagina">
+        <h2>Informazioni</h2>
+        <a routerLink="/" fragment="cura">Cura dei fiori</a>
+        <a routerLink="/" fragment="domande">Domande frequenti</a>
+      </nav>
+      <nav class="footer-links" aria-label="Area personale a fondo pagina">
+        <h2>Area personale</h2>
+        <a routerLink="/profilo">Account</a>
+        <a routerLink="/preferiti">Preferiti</a>
+        <a routerLink="/cart-page">Carrello</a>
+      </nav>
+    </div>
+    <small class="footer-copy">© Flower Bro!</small>
   </div>
 </footer>

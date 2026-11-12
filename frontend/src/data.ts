@@ -3,8 +3,61 @@ import { Tag } from './app/shared/models/Tag';
 
 export const sample_flower: Flower[] = [
   {
+    id: '7',
+    name: 'Petali di Seta',
+    kind: 'bouquet',
+    price: 48,
+    favorite: false,
+    origins: [],
+    stars: 0,
+    imageUrl: 'assets/flower_images/petali-di-seta.webp',
+    tags: ['romantic', 'elegant'],
+    composition: 'Peonie, rose e ranuncoli',
+    description: 'Peonie rosa e rose da giardino incontrano ranuncoli color albicocca. Una composizione morbida, pensata per un anniversario o un gesto romantico.',
+  },
+  {
+    id: '8',
+    name: 'Sole di Campo',
+    kind: 'bouquet',
+    price: 36,
+    favorite: false,
+    origins: [],
+    stars: 0,
+    imageUrl: 'assets/flower_images/sole-di-campo.webp',
+    tags: ['bright', 'colorful', 'cheerful'],
+    composition: 'Girasoli, margherite e solidago',
+    description: 'Girasoli dorati e margherite bianche, con solidago e steli leggeri. Un mazzo dal carattere spontaneo per un compleanno o per portare luce in casa.',
+  },
+  {
+    id: '9',
+    name: 'Giardino Segreto',
+    kind: 'bouquet',
+    price: 44,
+    favorite: false,
+    origins: [],
+    stars: 0,
+    imageUrl: 'assets/flower_images/giardino-segreto.webp',
+    tags: ['colorful', 'elegant'],
+    composition: 'Lisianthus, scabiose e pisello odoroso',
+    description: 'Lisianthus malva, scabiose e pisello odoroso in sfumature che vanno dal lilla al bordeaux. Il verde ricadente accompagna la forma naturale del mazzo.',
+  },
+  {
+    id: '10',
+    name: 'Alba Bianca',
+    kind: 'bouquet',
+    price: 42,
+    favorite: false,
+    origins: [],
+    stars: 0,
+    imageUrl: 'assets/flower_images/alba-bianca.webp',
+    tags: ['classic', 'elegant', 'pure'],
+    composition: 'Rose, lisianthus ed eucalipto',
+    description: 'Rose color avorio e lisianthus bianchi tra foglie di eucalipto. Una composizione luminosa per ringraziare o per vestire una tavola.',
+  },
+  {
     id: '1',
     name: 'Rosa',
+    kind: 'stem',
     price: 10,
     favorite: false,
     origins: ['Italia'],
@@ -17,6 +70,7 @@ export const sample_flower: Flower[] = [
   {
     id: '2',
     name: 'Tulipano',
+    kind: 'stem',
     price: 8,
     favorite: false,
     origins: ['Paesi Bassi'],
@@ -28,6 +82,7 @@ export const sample_flower: Flower[] = [
   {
     id: '3',
     name: 'Orchidea',
+    kind: 'stem',
     price: 15,
     favorite: false,
     origins: ['Thailandia'],
@@ -39,6 +94,7 @@ export const sample_flower: Flower[] = [
   {
     id: '4',
     name: 'Girasole',
+    kind: 'stem',
     price: 12,
     favorite: false,
     origins: ['Stati Uniti'],
@@ -50,6 +106,7 @@ export const sample_flower: Flower[] = [
   {
     id: '5',
     name: 'Margherita',
+    kind: 'stem',
     price: 6,
     favorite: false,
     origins: ['Germania'],
@@ -61,6 +118,7 @@ export const sample_flower: Flower[] = [
   {
     id: '6',
     name: 'Giglio',
+    kind: 'stem',
     price: 10,
     favorite: false,
     origins: ['Giappone'],
@@ -69,21 +127,42 @@ export const sample_flower: Flower[] = [
     tags: ['elegant', 'fragrant'],
     description: 'Una corolla ampia e una silhouette slanciata. Scegli il giglio per una composizione elegante o come fiore protagonista in un vaso alto.',
   },
+  {
+    id: '11',
+    name: 'Peonia',
+    kind: 'stem',
+    price: 12,
+    favorite: false,
+    origins: [],
+    stars: 0,
+    imageUrl: 'assets/flower_images/peonia.webp',
+    tags: ['romantic', 'spring', 'elegant'],
+    description: 'Petali rosa a strati e una corolla che si apre lentamente. Basta uno stelo per dare volume a un vaso piccolo.',
+  },
+  {
+    id: '12',
+    name: 'Ranuncolo',
+    kind: 'stem',
+    price: 7,
+    favorite: false,
+    origins: [],
+    stars: 0,
+    imageUrl: 'assets/flower_images/ranuncolo.webp',
+    tags: ['spring', 'bright', 'colorful'],
+    description: 'Petali fitti e concentrici in tonalità albicocca. Il ranuncolo si abbina bene alle rose o a pochi steli di verde.',
+  },
 ];
 
+const tagCounts = new Map<string, number>();
+for (const flower of sample_flower) {
+  for (const tag of flower.tags ?? []) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+
 export const sample_tags: Tag[] = [
-  { name: 'All', count: 6 },
-  { name: 'romantic', count: 1 },
-  { name: 'classic', count: 1 },
-  { name: 'spring', count: 1 },
-  { name: 'colorful', count: 1 },
-  { name: 'exotic', count: 1 },
-  { name: 'elegant', count: 2 },
-  { name: 'bright', count: 1 },
-  { name: 'cheerful', count: 1 },
-  { name: 'simple', count: 1 },
-  { name: 'pure', count: 1 },
-  { name: 'fragrant', count: 1 },
+  { name: 'All', count: sample_flower.length },
+  ...Array.from(tagCounts, ([name, count]) => ({ name, count })),
 ];
 
 export const flowerTagLabels: Readonly<Record<string, string>> = {

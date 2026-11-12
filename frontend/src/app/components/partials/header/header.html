@@ -1,36 +1,38 @@
 <header class="site-header">
   <div class="shell header-inner">
-    <a class="brand" routerLink="/" aria-label="Flower Bro!, home">
+    <button #navButton class="icon-button nav-trigger" type="button" aria-controls="site-nav"
+      [attr.aria-label]="navOpen() ? 'Chiudi menu' : 'Apri menu'" [attr.aria-expanded]="navOpen()" (click)="toggleNavigation()">
+      <app-icon [name]="navOpen() ? 'close' : 'menu'" />
+    </button>
+
+    <a class="brand" routerLink="/" aria-label="Flower Bro!, home" (click)="navOpen.set(false)">
       <span class="brand-mark"><app-icon name="flower" /></span>
       <span>Flower Bro!</span>
     </a>
 
-    <nav class="site-nav" aria-label="Navigazione principale">
-      <a routerLink="/" routerLinkActive="current" [routerLinkActiveOptions]="activeOptions" ariaCurrentWhenActive="page">Home</a>
-      <a routerLink="/" fragment="catalogo" routerLinkActive="current" [routerLinkActiveOptions]="activeOptions" ariaCurrentWhenActive="location">Catalogo</a>
-      <a routerLink="/preferiti" routerLinkActive="current" ariaCurrentWhenActive="page">Preferiti</a>
+    <nav #navigation id="site-nav" class="site-nav" [class.is-open]="navOpen()" aria-label="Navigazione principale">
+      <a routerLink="/" routerLinkActive="current" [routerLinkActiveOptions]="sectionMatch"
+        ariaCurrentWhenActive="page" (click)="navOpen.set(false)">Home</a>
+      <a routerLink="/" [queryParams]="{ tipo: 'bouquet' }" fragment="catalogo" routerLinkActive="current"
+        [routerLinkActiveOptions]="catalogMatch" ariaCurrentWhenActive="location" (click)="navOpen.set(false)">Bouquet</a>
+      <a routerLink="/" [queryParams]="{ tipo: 'fiori' }" fragment="catalogo" routerLinkActive="current"
+        [routerLinkActiveOptions]="catalogMatch" ariaCurrentWhenActive="location" (click)="navOpen.set(false)">Fiori singoli</a>
+      <a routerLink="/" fragment="cura" routerLinkActive="current" [routerLinkActiveOptions]="sectionMatch"
+        ariaCurrentWhenActive="location" (click)="navOpen.set(false)">Cura dei fiori</a>
+      <a class="nav-mobile" routerLink="/" fragment="cerca-fiori" (click)="focusSearch()">Cerca nel catalogo</a>
+      <a class="nav-mobile" routerLink="/preferiti" routerLinkActive="current"
+        ariaCurrentWhenActive="page" (click)="navOpen.set(false)">Preferiti</a>
     </nav>
 
     <div class="header-actions">
-      <a class="icon-button" routerLink="/" fragment="cerca-fiori" aria-label="Cerca nel catalogo" title="Cerca" (click)="focusSearch()">
-        <app-icon name="search" />
-      </a>
-
-      <a class="icon-button mobile-favorites" routerLink="/preferiti" aria-label="Preferiti" title="Preferiti">
-        <app-icon name="heart" />
-      </a>
+      <a class="icon-button desktop-action" routerLink="/" fragment="cerca-fiori" aria-label="Cerca nel catalogo" title="Cerca"
+        (click)="focusSearch()"><app-icon name="search" /></a>
+      <a class="icon-button desktop-action" routerLink="/preferiti" aria-label="Preferiti" title="Preferiti"
+        routerLinkActive="action-current" ariaCurrentWhenActive="page"><app-icon name="heart" /></a>
 
       <div class="account-area" #accountArea>
-        <button
-          class="icon-button account-trigger"
-          #accountButton
-          type="button"
-          aria-label="Account"
-          title="Account"
-          aria-controls="account-menu"
-          [attr.aria-expanded]="accountOpen()"
-          (click)="accountOpen.set(!accountOpen())"
-        >
+        <button #accountButton class="icon-button account-trigger" type="button" aria-label="Account" title="Account"
+          aria-controls="account-menu" [attr.aria-expanded]="accountOpen()" (click)="toggleAccount()">
           <app-icon name="account" />
           @if (account.profile()) {
             <span class="signed-in" aria-hidden="true"></span>
@@ -48,9 +50,9 @@
         </div>
       </div>
 
-      <a class="cart-link" routerLink="/cart-page" [attr.aria-label]="'Carrello, ' + cart.count() + (cart.count() === 1 ? ' articolo' : ' articoli')">
+      <a class="cart-link icon-button" routerLink="/cart-page" title="Carrello" routerLinkActive="action-current"
+        ariaCurrentWhenActive="page" [attr.aria-label]="'Carrello, ' + cart.count() + (cart.count() === 1 ? ' articolo' : ' articoli')">
         <app-icon name="bag" />
-        <span class="cart-label">Carrello</span>
         <span class="cart-count" aria-hidden="true">{{ cart.count() > 99 ? '99+' : cart.count() }}</span>
       </a>
     </div>

@@ -1,12 +1,7 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
-  {
-    path: 'flower/:id',
-    renderMode: RenderMode.Server
-  },
-  {
-    path: '**',
-    renderMode: RenderMode.Prerender
-  }
+  { path: '', renderMode: RenderMode.Server },
+  { path: 'flower/:id', renderMode: RenderMode.Server },
+  { path: '**', renderMode: RenderMode.Prerender },
 ];

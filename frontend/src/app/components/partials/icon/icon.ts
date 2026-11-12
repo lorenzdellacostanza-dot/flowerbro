@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 
 type IconName =
   | 'account' | 'arrow-left' | 'arrow-right' | 'bag' | 'check' | 'chevron'
-  | 'clock' | 'close' | 'eye' | 'eye-off' | 'flower' | 'heart' | 'minus' | 'plus'
+  | 'clock' | 'close' | 'eye' | 'eye-off' | 'flower' | 'heart' | 'menu' | 'minus' | 'plus'
   | 'search' | 'trash';
 
 @Component({
@@ -42,6 +42,7 @@ type IconName =
           <path d="M12 12C7.4 7 8.4 3.7 12 3.7S16.6 7 12 12Z" />
         }
         @case ('heart') { <path d="M20.7 5.5a5.2 5.2 0 0 0-7.3 0L12 6.8l-1.4-1.3a5.2 5.2 0 0 0-7.3 7.4l1.4 1.4 7.3 7 7.3-7 1.4-1.4a5.2 5.2 0 0 0 0-7.4Z" /> }
+        @case ('menu') { <path d="M4 6h16M4 12h16M4 18h16" /> }
         @case ('minus') { <path d="M5 12h14" /> }
         @case ('plus') { <path d="M12 5v14M5 12h14" /> }
         @case ('search') { <circle cx="10.8" cy="10.8" r="6.1" /><path d="m15.2 15.2 4.3 4.3" /> }
