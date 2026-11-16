@@ -1,8 +1,8 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { IsActiveMatchOptions, RouterLink, RouterLinkActive } from '@angular/router';
+import { AccountService } from '../../../services/account.service';
 import { CartService } from '../../../services/cart.service';
-import { DemoAccountService } from '../../../services/demo-account.service';
 import { Icon } from '../icon/icon';
 
 @Component({
@@ -17,8 +17,9 @@ import { Icon } from '../icon/icon';
 })
 export class Header {
   protected readonly cart = inject(CartService);
-  protected readonly account = inject(DemoAccountService);
+  protected readonly account = inject(AccountService);
   protected readonly accountOpen = signal(false);
+  protected readonly signOutError = signal('');
   protected readonly navOpen = signal(false);
   protected readonly sectionMatch: IsActiveMatchOptions = {
     paths: 'exact',
@@ -76,8 +77,12 @@ export class Header {
     }
   }
 
-  protected signOut(): void {
-    this.account.signOut();
-    this.closeOnEscape();
+  protected async signOut(): Promise<void> {
+    if (this.account.signingOut()) return;
+
+    this.signOutError.set('');
+    const error = await this.account.signOut();
+    if (error) this.signOutError.set(error);
+    else if (this.accountOpen()) this.closeOnEscape();
   }
 }
