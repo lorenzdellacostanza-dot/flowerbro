@@ -1,0 +1,84 @@
+name: flowerbro
+
+services:
+  db:
+    image: flowerbro-postgres:18
+    build: ./database
+    entrypoint: ["/bin/sh", "/etc/flowerbro/start-postgres.sh"]
+    command:
+      - postgres
+      - -c
+      - hba_file=/etc/flowerbro/pg_hba.conf
+      - -c
+      - ssl=on
+      - -c
+      - ssl_cert_file=/var/lib/postgresql/tls/server.crt
+      - -c
+      - ssl_key_file=/var/lib/postgresql/tls/server.key
+      - -c
+      - password_encryption=scram-sha-256
+    environment:
+      POSTGRES_DB: flowerbro
+      POSTGRES_USER: flowerbro
+      POSTGRES_PASSWORD: "${FLOWERBRO_DB_PASSWORD:?Esegui Start-Database.ps1 per configurare il database}"
+      PGSSLMODE: verify-full
+      PGSSLROOTCERT: /etc/flowerbro/trust/ca.crt
+    ports:
+      - "127.0.0.1:${FLOWERBRO_DB_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - tls_public:/etc/flowerbro/trust
+      - ./database/start-postgres.sh:/etc/flowerbro/start-postgres.sh:ro
+      - ./database/pg_hba.conf:/etc/flowerbro/pg_hba.conf:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          PGPASSWORD="$$POSTGRES_PASSWORD"
+          psql -w -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
+          -Atqc 'SELECT 1' > /dev/null
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  migrate:
+    image: flyway/flyway:13.10.3
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: "jdbc:postgresql://db:5432/flowerbro?sslmode=verify-full&sslrootcert=/etc/flowerbro/trust/ca.crt"
+      FLYWAY_USER: flowerbro
+      FLYWAY_PASSWORD: "${FLOWERBRO_DB_PASSWORD:?Esegui Start-Database.ps1 per configurare il database}"
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    volumes:
+      - tls_public:/etc/flowerbro/trust:ro
+      - ./src/main/resources/db/migration:/flyway/sql:ro
+    command: ["migrate"]
+
+  provision:
+    image: flowerbro-postgres:18
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      PGHOST: db
+      PGDATABASE: flowerbro
+      PGUSER: flowerbro
+      PGPASSWORD: "${FLOWERBRO_DB_PASSWORD:?Esegui Start-Database.ps1 per configurare il database}"
+      PGSSLMODE: verify-full
+      PGSSLROOTCERT: /etc/flowerbro/trust/ca.crt
+      FLOWERBRO_APP_DB_PASSWORD: "${FLOWERBRO_APP_DB_PASSWORD:?Esegui Start-Database.ps1 per configurare il database}"
+    volumes:
+      - tls_public:/etc/flowerbro/trust:ro
+      - ./database/provision-app.sql:/etc/flowerbro/provision-app.sql:ro
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        printf '%s\n%s\n' "$$FLOWERBRO_APP_DB_PASSWORD" "$$FLOWERBRO_APP_DB_PASSWORD" |
+          psql -X -w -v ON_ERROR_STOP=1 -f /etc/flowerbro/provision-app.sql
+
+volumes:
+  pgdata:
+  tls_public:
