@@ -1,4 +1,4 @@
-import { afterNextRender, inject, Injectable, signal } from '@angular/core';
+import { afterNextRender, computed, inject, Injectable, signal } from '@angular/core';
 import { Flower } from '../shared/models/Flower';
 import { FlowerService } from './flower.service';
 
@@ -6,6 +6,8 @@ import { FlowerService } from './flower.service';
 export class FlowerFavoritesService {
   private readonly flowers = inject(FlowerService).getAll();
   private readonly favorites = signal<Partial<Record<string, boolean>>>({});
+
+  readonly selectedFlowers = computed(() => this.flowers.filter(flower => this.isFavorite(flower)));
 
   constructor() {
     afterNextRender(() => {

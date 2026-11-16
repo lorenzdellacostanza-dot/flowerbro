@@ -12,4 +12,16 @@ import { Icon } from '../../partials/icon/icon';
 })
 export class CartPageComponent {
   protected readonly cart = inject(CartService);
+
+  protected increaseQuantity(flowerId: string): void {
+    this.cart.add(flowerId);
+  }
+
+  protected decreaseQuantity(flowerId: string): void {
+    this.cart.decrease(flowerId);
+  }
+
+  protected removeFlower(flowerId: string): void {
+    this.cart.remove(flowerId);
+  }
 }

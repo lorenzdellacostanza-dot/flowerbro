@@ -29,6 +29,18 @@ Per provare Angular SSR in locale, esegui `npm run build` e
 `npm run serve:ssr:frontend` da `frontend` con il backend avviato, poi apri
 [127.0.0.1:4000](http://127.0.0.1:4000/).
 
+## Architettura MVC
+
+- Nel **Model**, `AccountService` applica le regole di autenticazione
+  e usa `AccountStore` per leggere e scrivere profili e sessioni in SQLite.
+  Nel frontend, i servizi Angular gestiscono il catalogo, i preferiti, il
+  carrello e il checkout dimostrativo.
+- La **View** usa i template HTML di Angular per mostrare profili, fiori,
+  carrello e conferma dell’ordine.
+- Nel ruolo di **Controller**, `AccountController` gestisce le richieste di Spring MVC,
+  delega al servizio account e restituisce JSON. I componenti TypeScript
+  gestiscono gli eventi dei template e invocano i servizi Angular.
+
 ## Account e database
 
 Il backend Java espone registrazione, login, profilo e logout. Angular chiama

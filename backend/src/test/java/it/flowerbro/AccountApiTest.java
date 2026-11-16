@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.web.server.context.WebServerApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import tools.jackson.databind.json.JsonMapper;
 
 class AccountApiTest {
@@ -27,12 +28,8 @@ class AccountApiTest {
     @Test
     void accountLifecycleUsesProtectedServerSideSessions(@TempDir Path directory) throws Exception {
         Path database = directory.resolve("account.sqlite");
-        String testKey = Base64.getUrlEncoder().withoutPadding().encodeToString(new byte[32]);
-        try (var context = SpringApplication.run(FlowerBroApplication.class,
-                "--server.port=0", "--FLOWERBRO_DB_PATH=" + database, "--FLOWERBRO_DATA_KEY=" + testKey,
-                "--FLOWERBRO_ORIGIN=", "--NODE_ENV=test", "--spring.profiles.active=test")) {
-            int port = ((WebServerApplicationContext) context).getWebServer().getPort();
-            String origin = "http://127.0.0.1:" + port;
+        try (var context = startApplication(database)) {
+            String origin = originOf(context);
             try (var client = HttpClient.newHttpClient()) {
                 var anonymous = get(client, origin, "");
                 assertEquals(200, anonymous.statusCode());
@@ -72,6 +69,52 @@ class AccountApiTest {
                 assertTrue(JSON.readTree(get(client, origin, newCookie).body()).path("profile").isNull());
             }
         }
+    }
+
+    @Test
+    void accountErrorsUseTheApiContractAndLimitAttemptsByNormalizedEmail(@TempDir Path directory) throws Exception {
+        try (var context = startApplication(directory.resolve("account.sqlite"));
+                var client = HttpClient.newHttpClient()) {
+            String origin = originOf(context);
+            String signup = """
+                    {"name":"  Test Account  ","email":"  Test@example.invalid  ","password":"a synthetic test password"}
+                    """;
+            var invalid = post(client, origin, "register", origin, "", signup.replace("a synthetic test password", "short"));
+            assertEquals(400, invalid.statusCode());
+            assertEquals("Inserisci un nome e una password di almeno 15 caratteri.",
+                    JSON.readTree(invalid.body()).path("error").asString());
+
+            var registered = post(client, origin, "register", origin, "", signup);
+            assertEquals(201, registered.statusCode());
+            var profile = JSON.readTree(registered.body()).path("profile");
+            assertEquals("Test Account", profile.path("name").asString());
+            assertEquals("test@example.invalid", profile.path("email").asString());
+            assertEquals(409, post(client, origin, "register", origin, "", signup).statusCode());
+
+            String wrongLogin = """
+                    {"email":"%s","password":"wrong password"}
+                    """;
+            for (int attempt = 0; attempt < 8; attempt++) {
+                String email = attempt % 2 == 0 ? "  TEST@example.invalid  " : "test@example.invalid";
+                assertEquals(401, post(client, origin, "login", origin, "", wrongLogin.formatted(email)).statusCode());
+            }
+            var blocked = post(client, origin, "login", origin, "", wrongLogin.formatted("test@example.invalid"));
+            assertEquals(429, blocked.statusCode());
+            assertEquals("900", blocked.headers().firstValue("Retry-After").orElseThrow());
+            assertTrue(blocked.headers().firstValue("Set-Cookie").isEmpty());
+        }
+    }
+
+    private static ConfigurableApplicationContext startApplication(Path database) {
+        String testKey = Base64.getUrlEncoder().withoutPadding().encodeToString(new byte[32]);
+        return SpringApplication.run(FlowerBroApplication.class,
+                "--server.port=0", "--FLOWERBRO_DB_PATH=" + database, "--FLOWERBRO_DATA_KEY=" + testKey,
+                "--FLOWERBRO_ORIGIN=", "--NODE_ENV=test", "--spring.profiles.active=test");
+    }
+
+    private static String originOf(ConfigurableApplicationContext context) {
+        int port = ((WebServerApplicationContext) context).getWebServer().getPort();
+        return "http://127.0.0.1:" + port;
     }
 
     private static HttpResponse<String> get(HttpClient client, String origin, String cookie) throws Exception {

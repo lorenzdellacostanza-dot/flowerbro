@@ -53,7 +53,7 @@ final class AccountCrypto {
         }
     }
 
-    byte[] encryptProfile(AccountStore.Profile profile, byte[] lookup) {
+    byte[] encryptProfile(AccountProfile profile, byte[] lookup) {
         byte[] nonce = randomBytes(NONCE_SIZE);
         byte[] plaintext = JSON.writeValueAsBytes(profile);
         try {
@@ -75,7 +75,7 @@ final class AccountCrypto {
         }
     }
 
-    AccountStore.Profile decryptProfile(byte[] encrypted, byte[] lookup) {
+    AccountProfile decryptProfile(byte[] encrypted, byte[] lookup) {
         int ciphertextSize = encrypted.length - NONCE_SIZE - TAG_SIZE;
         if (ciphertextSize <= 0) throw new IllegalStateException("Profilo cifrato non valido.");
 
@@ -89,7 +89,7 @@ final class AccountCrypto {
             cipher.updateAAD(lookup);
             byte[] plaintext = cipher.doFinal(ciphertextWithTag);
             try {
-                return JSON.readValue(plaintext, AccountStore.Profile.class);
+                return JSON.readValue(plaintext, AccountProfile.class);
             } finally {
                 Arrays.fill(plaintext, (byte) 0);
             }

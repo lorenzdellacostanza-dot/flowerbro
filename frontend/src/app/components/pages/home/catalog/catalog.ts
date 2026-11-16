@@ -1,7 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { flowerTagLabels } from '../../../../../data';
 import { FlowerService } from '../../../../services/flower.service';
 import { FlowerCard } from '../../../partials/flower-card/flower-card';
 import { Icon } from '../../../partials/icon/icon';
@@ -13,9 +12,6 @@ const groups = [
   { id: 'fiori', label: 'Fiori singoli', kind: 'stem' },
 ] as const;
 
-const normalize = (value: string): string =>
-  value.trim().toLocaleLowerCase('it').normalize('NFD').replace(/\p{Diacritic}/gu, '');
-
 @Component({
   selector: 'app-catalog',
   imports: [RouterLink, FlowerCard, Icon],
@@ -26,16 +22,7 @@ export class Catalog {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly params = toSignal(this.route.queryParamMap, { requireSync: true });
-  private readonly flowers = inject(FlowerService).getAll();
-  private readonly searchableFlowers = this.flowers.map(flower => ({
-    flower,
-    text: normalize([
-      flower.name,
-      flower.kind === 'bouquet' ? 'bouquet' : 'fiore singolo',
-      flower.composition,
-      ...(flower.tags ?? []).map(tag => flowerTagLabels[tag] ?? tag),
-    ].join(' ')),
-  }));
+  private readonly flowerService = inject(FlowerService);
 
   protected readonly groups = groups;
   protected readonly occasions = occasions;
@@ -48,25 +35,12 @@ export class Catalog {
   protected readonly searchTerm = signal('');
   protected readonly sort = signal('featured');
 
-  protected readonly visibleFlowers = computed(() => {
-    const terms = normalize(this.searchTerm()).split(/\s+/).filter(Boolean);
-    const group = this.selectedGroup();
-    const occasion = this.selectedOccasion();
-    const flowers = this.searchableFlowers
-      .filter(({ flower, text }) =>
-        (!group.kind || flower.kind === group.kind) &&
-        (!occasion || occasion.tags.some(tag => flower.tags?.includes(tag))) &&
-        terms.every(term => text.includes(term))
-      )
-      .map(({ flower }) => flower);
-
-    switch (this.sort()) {
-      case 'price-ascending': return flowers.sort((a, b) => a.price - b.price);
-      case 'price-descending': return flowers.sort((a, b) => b.price - a.price);
-      case 'rating': return flowers.sort((a, b) => b.stars - a.stars);
-      default: return flowers;
-    }
-  });
+  protected readonly visibleFlowers = computed(() => this.flowerService.search({
+    kind: this.selectedGroup().kind,
+    occasionTags: this.selectedOccasion()?.tags,
+    term: this.searchTerm(),
+    sort: this.sort(),
+  }));
 
   protected filterOccasion(occasion: string): void {
     void this.router.navigate([], {

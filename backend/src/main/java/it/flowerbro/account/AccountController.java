@@ -1,8 +1,7 @@
 package it.flowerbro.account;
 
 import it.flowerbro.BackendSettings;
-import it.flowerbro.account.AccountStore.AuthenticatedAccount;
-import it.flowerbro.account.AccountStore.Profile;
+import it.flowerbro.account.AccountService.AuthenticationRejected;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -10,12 +9,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Enumeration;
-import java.util.Optional;
-import java.util.concurrent.Semaphore;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,25 +36,17 @@ public class AccountController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccountController.class);
     private static final int MAX_JSON_BYTES = 4096;
-    private static final int MAX_CONCURRENT_AUTH = 4;
     private static final Pattern LOOPBACK_HOST =
             Pattern.compile("(?:localhost|127\\.0\\.0\\.1|\\[::1\\])(?::\\d{1,5})?");
     private static final Pattern SESSION_TOKEN = Pattern.compile("[A-Za-z0-9_-]{43}");
-    private static final String NON_EMAIL_CHARACTERS = "\\s@<>\\x00-\\x1f\\x7f"
-            + "\\x{00a0}\\x{1680}\\x{2000}-\\x{200a}\\x{2028}\\x{2029}\\x{202f}\\x{205f}\\x{3000}\\x{feff}";
-    private static final String EMAIL_PART = "[^" + NON_EMAIL_CHARACTERS + "]+";
-    private static final Pattern EMAIL = Pattern.compile(EMAIL_PART + "@" + EMAIL_PART + "\\." + EMAIL_PART);
-    private static final Pattern NAME_CONTROL = Pattern.compile("[\\x00-\\x1f\\x7f]");
 
-    private final AccountStore store;
+    private final AccountService accounts;
     private final URI publicOrigin;
     private final String cookieName;
     private final ObjectReader jsonReader;
-    private final AccountRateLimiter attempts = new AccountRateLimiter();
-    private final Semaphore authSlots = new Semaphore(MAX_CONCURRENT_AUTH);
 
-    public AccountController(AccountStore store, BackendSettings settings, JsonMapper json) {
-        this.store = store;
+    public AccountController(AccountService accounts, BackendSettings settings, JsonMapper json) {
+        this.accounts = accounts;
         this.publicOrigin = settings.publicOrigin();
         this.cookieName = publicOrigin == null ? "flowerbro-session-local" : "__Host-flowerbro-session";
         this.jsonReader = json.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
@@ -72,7 +58,7 @@ public class AccountController {
         checkBrowserOrigin(request, false);
 
         String token = sessionToken(request);
-        Profile profile = token == null ? null : store.profile(token).orElse(null);
+        AccountProfile profile = accounts.profile(token).orElse(null);
         var response = response(HttpStatus.OK);
         if (token != null && profile == null) {
             response.header(HttpHeaders.SET_COOKIE, sessionCookie("", 0));
@@ -81,13 +67,23 @@ public class AccountController {
     }
 
     @PostMapping({"/register", "/register/"})
-    public ResponseEntity<?> register(HttpServletRequest request) {
-        return authenticate(request, true);
+    public ResponseEntity<ProfileResponse> register(HttpServletRequest request) {
+        String ip = checkProxy(request);
+        checkBrowserOrigin(request, true);
+        JsonNode body = readBody(request);
+        AccountSession session = accounts.register(body.path("name").stringValue(""),
+                body.path("email").stringValue(""), body.path("password").stringValue(""), sessionToken(request), ip);
+        return authenticated(HttpStatus.CREATED, session);
     }
 
     @PostMapping({"/login", "/login/"})
-    public ResponseEntity<?> login(HttpServletRequest request) {
-        return authenticate(request, false);
+    public ResponseEntity<ProfileResponse> login(HttpServletRequest request) {
+        String ip = checkProxy(request);
+        checkBrowserOrigin(request, true);
+        JsonNode body = readBody(request);
+        AccountSession session = accounts.signIn(body.path("email").stringValue(""),
+                body.path("password").stringValue(""), sessionToken(request), ip);
+        return authenticated(HttpStatus.OK, session);
     }
 
     @PostMapping({"/logout", "/logout/"})
@@ -96,10 +92,7 @@ public class AccountController {
         checkBrowserOrigin(request, true);
         readBody(request);
 
-        String token = sessionToken(request);
-        if (token != null) {
-            store.signOut(token);
-        }
+        accounts.signOut(sessionToken(request));
         return ResponseEntity.noContent()
                 .header(HttpHeaders.CACHE_CONTROL, "no-store")
                 .header(HttpHeaders.SET_COOKIE, sessionCookie("", 0))
@@ -111,54 +104,10 @@ public class AccountController {
         return error(HttpStatus.NOT_FOUND, "Pagina non trovata.");
     }
 
-    private ResponseEntity<?> authenticate(HttpServletRequest request, boolean registering) {
-        String ip = checkProxy(request);
-        checkBrowserOrigin(request, true);
-        JsonNode body = readBody(request);
-
-        String email = AccountStore.normalizeEmail(body.path("email").stringValue(""));
-        String password = body.path("password").stringValue("");
-        if (email.length() > 254 || !wellFormed(email) || !EMAIL.matcher(email).matches()
-                || password.isEmpty() || password.length() > 128) {
-            return error(HttpStatus.BAD_REQUEST, "Inserisci un’email e una password valide.");
-        }
-        String name = body.path("name").stringValue("").strip();
-        if (registering && (name.isEmpty() || name.length() > 80 || !wellFormed(name)
-                || NAME_CONTROL.matcher(name).find() || !wellFormed(password)
-                || password.codePointCount(0, password.length()) < 15)) {
-            return error(HttpStatus.BAD_REQUEST, "Inserisci un nome e una password di almeno 15 caratteri.");
-        }
-
-        if (!authSlots.tryAcquire()) {
-            return retry(2, "Troppe richieste. Riprova tra poco.");
-        }
-        try {
-            String mode = registering ? "register" : "login";
-            String emailKey = registering ? null : "login:email:" + emailDigest(email);
-            if (!attempts.takeAttempt(mode + ":ip:" + ip, registering ? 10 : 25)
-                    || (emailKey != null && !attempts.takeAttempt(emailKey, 8))) {
-                return retry(AccountRateLimiter.WINDOW_SECONDS, "Troppi tentativi. Riprova tra qualche minuto.");
-            }
-
-            String previousToken = sessionToken(request);
-            Optional<AuthenticatedAccount> result = registering
-                    ? store.register(new Profile(name, email), password, previousToken)
-                    : store.signIn(email, password, previousToken);
-            if (result.isEmpty()) {
-                return registering
-                        ? error(HttpStatus.CONFLICT, "Registrazione non riuscita con questi dati.")
-                        : error(HttpStatus.UNAUTHORIZED, "Email o password errata.");
-            }
-            if (emailKey != null) {
-                attempts.reset(emailKey);
-            }
-            AuthenticatedAccount account = result.orElseThrow();
-            return response(registering ? HttpStatus.CREATED : HttpStatus.OK)
-                    .header(HttpHeaders.SET_COOKIE, sessionCookie(account.token(), AccountStore.SESSION_LIFETIME_SECONDS))
-                    .body(new ProfileResponse(account.profile()));
-        } finally {
-            authSlots.release();
-        }
+    private ResponseEntity<ProfileResponse> authenticated(HttpStatus status, AccountSession session) {
+        return response(status)
+                .header(HttpHeaders.SET_COOKIE, sessionCookie(session.token(), AccountSession.LIFETIME_SECONDS))
+                .body(new ProfileResponse(session.profile()));
     }
 
     private String checkProxy(HttpServletRequest request) {
@@ -271,19 +220,6 @@ public class AccountController {
                 .toString();
     }
 
-    private static String emailDigest(String email) {
-        try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(email.getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
-        } catch (NoSuchAlgorithmException missingAlgorithm) {
-            throw new IllegalStateException("SHA-256 is unavailable", missingAlgorithm);
-        }
-    }
-
-    private static boolean wellFormed(String value) {
-        return value.codePoints().noneMatch(c -> c >= Character.MIN_SURROGATE && c <= Character.MAX_SURROGATE);
-    }
-
     private static ResponseEntity.BodyBuilder response(HttpStatus status) {
         return ResponseEntity.status(status)
                 .header(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -304,6 +240,21 @@ public class AccountController {
     @ExceptionHandler(ApiRejection.class)
     ResponseEntity<ErrorResponse> rejected(ApiRejection rejection) {
         return error(rejection.status, rejection.getMessage());
+    }
+
+    @ExceptionHandler(AuthenticationRejected.class)
+    ResponseEntity<ErrorResponse> authenticationRejected(AuthenticationRejected rejection) {
+        var failure = rejection.failure();
+        return switch (failure) {
+            case INVALID_CREDENTIALS -> error(HttpStatus.BAD_REQUEST, "Inserisci un’email e una password valide.");
+            case INVALID_REGISTRATION -> error(HttpStatus.BAD_REQUEST,
+                    "Inserisci un nome e una password di almeno 15 caratteri.");
+            case REGISTRATION_CONFLICT -> error(HttpStatus.CONFLICT, "Registrazione non riuscita con questi dati.");
+            case INCORRECT_CREDENTIALS -> error(HttpStatus.UNAUTHORIZED, "Email o password errata.");
+            case AUTH_BUSY -> retry(failure.retryAfterSeconds(), "Troppe richieste. Riprova tra poco.");
+            case ATTEMPTS_EXHAUSTED -> retry(failure.retryAfterSeconds(),
+                    "Troppi tentativi. Riprova tra qualche minuto.");
+        };
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -328,7 +279,7 @@ public class AccountController {
         return new ApiRejection(HttpStatus.BAD_REQUEST, "Richiesta non valida.");
     }
 
-    private record ProfileResponse(Profile profile) {}
+    private record ProfileResponse(AccountProfile profile) {}
     private record ErrorResponse(String error) {}
 
     private static final class ApiRejection extends RuntimeException {

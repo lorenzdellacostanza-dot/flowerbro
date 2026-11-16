@@ -14,20 +14,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 public final class AccountStore {
-    public record Profile(String name, String email) {}
-    public record AuthenticatedAccount(Profile profile, String token) {}
-
-    public static final long SESSION_LIFETIME_SECONDS = 7 * 24 * 60 * 60;
-
-    private static final String JS_WHITESPACE = "[\\p{Zs}\\t\\x0B\\f\\r\\n\\u2028\\u2029\\uFEFF]";
-    private static final Pattern EMAIL_TRIM = Pattern.compile(
-            "\\A" + JS_WHITESPACE + "+|" + JS_WHITESPACE + "+\\z");
-
     private final AccountCrypto crypto;
     private final String databaseUrl;
     private final SQLiteConfig sqliteConfig;
@@ -58,12 +47,8 @@ public final class AccountStore {
         }
     }
 
-    public static String normalizeEmail(String email) {
-        return EMAIL_TRIM.matcher(email).replaceAll("").toLowerCase(Locale.ROOT);
-    }
-
-    public Optional<AuthenticatedAccount> register(Profile profile, String password, String previousToken) {
-        var normalized = new Profile(profile.name(), normalizeEmail(profile.email()));
+    public Optional<AccountSession> register(AccountProfile profile, String password, String previousToken) {
+        var normalized = new AccountProfile(profile.name(), AccountProfile.normalizeEmail(profile.email()));
         byte[] lookup = crypto.emailLookup(normalized.email());
         byte[] encrypted = crypto.encryptProfile(normalized, lookup);
         byte[] salt = crypto.randomBytes(16);
@@ -80,15 +65,15 @@ public final class AccountStore {
                     insert.setBytes(4, passwordHash);
                     if (insert.executeUpdate() == 0) return Optional.empty();
                 }
-                return Optional.of(new AuthenticatedAccount(normalized, createSession(connection, lookup, previousToken)));
+                return Optional.of(new AccountSession(normalized, createSession(connection, lookup, previousToken)));
             });
         } finally {
             Arrays.fill(passwordHash, (byte) 0);
         }
     }
 
-    public Optional<AuthenticatedAccount> signIn(String email, String password, String previousToken) {
-        byte[] lookup = crypto.emailLookup(normalizeEmail(email));
+    public Optional<AccountSession> signIn(String email, String password, String previousToken) {
+        byte[] lookup = crypto.emailLookup(AccountProfile.normalizeEmail(email));
         Account account = read(connection -> {
             try (var select = connection.prepareStatement("""
                     SELECT encrypted_profile, password_salt, password_hash FROM accounts WHERE email_lookup = ?
@@ -111,12 +96,12 @@ public final class AccountStore {
             if (account != null) Arrays.fill(account.hash(), (byte) 0);
         }
 
-        Profile profile = crypto.decryptProfile(account.encryptedProfile(), lookup);
+        AccountProfile profile = crypto.decryptProfile(account.encryptedProfile(), lookup);
         return write(connection -> Optional.of(
-                new AuthenticatedAccount(profile, createSession(connection, lookup, previousToken))));
+                new AccountSession(profile, createSession(connection, lookup, previousToken))));
     }
 
-    public Optional<Profile> profile(String token) {
+    public Optional<AccountProfile> profile(String token) {
         byte[] tokenHash = AccountCrypto.tokenHash(token);
         if (tokenHash == null) return Optional.empty();
 
@@ -212,7 +197,7 @@ public final class AccountStore {
                 """)) {
             insert.setBytes(1, AccountCrypto.tokenHash(token));
             insert.setBytes(2, lookup);
-            insert.setLong(3, now + SESSION_LIFETIME_SECONDS);
+            insert.setLong(3, now + AccountSession.LIFETIME_SECONDS);
             insert.executeUpdate();
         }
         return token;

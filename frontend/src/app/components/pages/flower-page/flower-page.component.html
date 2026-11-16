@@ -13,7 +13,7 @@
         <div class="detail-heading">
           <h1>{{ item.name }}</h1>
           <button type="button" class="icon-button favorite-button" [attr.aria-label]="'Preferito, ' + item.name"
-            [attr.aria-pressed]="favorites.isFavorite(item)" (click)="favorites.toggle(item)">
+            [attr.aria-pressed]="favorites.isFavorite(item)" (click)="toggleFavorite(item)">
             <app-icon name="heart" />
           </button>
         </div>

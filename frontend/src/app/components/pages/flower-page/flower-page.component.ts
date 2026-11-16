@@ -6,6 +6,7 @@ import { flowerTagLabels } from '../../../../data';
 import { CartService } from '../../../services/cart.service';
 import { FlowerFavoritesService } from '../../../services/flower-favorites.service';
 import { FlowerService } from '../../../services/flower.service';
+import { Flower } from '../../../shared/models/Flower';
 import { FlowerCard } from '../../partials/flower-card/flower-card';
 import { Icon } from '../../partials/icon/icon';
 import { Rating } from '../../partials/rating/rating';
@@ -24,11 +25,7 @@ export class FlowerPageComponent {
   );
   protected readonly related = computed(() => {
     const flower = this.flower();
-    return flower
-      ? this.flowerService.getAll()
-        .filter(item => item.kind === flower.kind && item.id !== flower.id)
-        .slice(0, 4)
-      : [];
+    return flower ? this.flowerService.getRelated(flower).slice(0, 4) : [];
   });
   protected readonly quantity = linkedSignal({ source: () => this.flower()?.id, computation: () => 1 });
   protected readonly favorites = inject(FlowerFavoritesService);
@@ -36,6 +33,10 @@ export class FlowerPageComponent {
   protected readonly tagLabels = flowerTagLabels;
 
   protected addToCart(id: string): void {
-    this.cart.setQuantity(id, this.cart.quantity(id) + this.quantity());
+    this.cart.add(id, this.quantity());
+  }
+
+  protected toggleFavorite(flower: Flower): void {
+    this.favorites.toggle(flower);
   }
 }

@@ -43,8 +43,13 @@ export class CartService {
     return this.quantities()[flowerId] ?? 0;
   }
 
-  add(flowerId: string): void {
-    this.setQuantity(flowerId, this.quantity(flowerId) + 1);
+  add(flowerId: string, amount = 1): void {
+    this.setQuantity(flowerId, this.quantity(flowerId) + amount);
+  }
+
+  decrease(flowerId: string): void {
+    const quantity = this.quantity(flowerId);
+    if (quantity > 1) this.setQuantity(flowerId, quantity - 1);
   }
 
   remove(flowerId: string): void {

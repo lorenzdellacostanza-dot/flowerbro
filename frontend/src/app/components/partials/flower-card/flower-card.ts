@@ -17,4 +17,12 @@ export class FlowerCard {
   readonly loading = input<'eager' | 'lazy'>('lazy');
   protected readonly cart = inject(CartService);
   protected readonly favorites = inject(FlowerFavoritesService);
+
+  protected addToCart(): void {
+    this.cart.add(this.flower().id);
+  }
+
+  protected toggleFavorite(): void {
+    this.favorites.toggle(this.flower());
+  }
 }

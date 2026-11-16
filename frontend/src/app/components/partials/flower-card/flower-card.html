@@ -7,7 +7,7 @@
     </a>
     <button class="icon-button favorite-button" type="button"
       [attr.aria-label]="'Preferito, ' + item.name" [attr.aria-pressed]="favorites.isFavorite(item)"
-      (click)="favorites.toggle(item)">
+      (click)="toggleFavorite()">
       <app-icon name="heart" />
     </button>
   </div>
@@ -19,7 +19,7 @@
     <div class="card-actions">
       <p class="card-price">{{ item.price | currency:'EUR' }} <small>/ {{ item.kind === 'bouquet' ? 'bouquet' : 'stelo' }}</small></p>
       <button class="icon-button add-button" type="button" title="Aggiungi al carrello"
-        [attr.aria-label]="'Aggiungi ' + item.name + ' al carrello'" (click)="cart.add(item.id)">
+        [attr.aria-label]="'Aggiungi ' + item.name + ' al carrello'" (click)="addToCart()">
         <app-icon name="plus" />
         @if (quantity) {
           <span class="item-count" aria-hidden="true">{{ quantity > 99 ? '99+' : quantity }}</span>
