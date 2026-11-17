@@ -1,10 +1,10 @@
 # Database di Flower Bro!
 
-PostgreSQL contiene il catalogo, gli account e gli ordini. Le migrazioni Flyway creano lo schema, caricano i 12 prodotti del frontend e proteggono i dati personali.
+Spring Boot legge il catalogo e registra gli ordini in PostgreSQL. Le migrazioni Flyway creano lo schema e caricano i 12 prodotti iniziali. Il servizio account usa SQLite.
 
 ## Avvio locale
 
-Con Docker Desktop aperto, esegui dalla cartella `backend`:
+Con Docker Desktop aperto, esegui questo comando dalla cartella `backend`.
 
 ```powershell
 .\Start-Database.ps1
@@ -23,20 +23,32 @@ Lo script avvia PostgreSQL, applica le migrazioni, configura l’utente applicat
 
 In JDBC usa `jdbc:postgresql://127.0.0.1:5433/flowerbro` con le proprietà `sslmode=verify-full` e `sslrootcert` impostata sul percorso del certificato. L’utente `flowerbro` è riservato alle migrazioni e all’amministrazione locale. Per una sessione amministrativa nel container, esegui `docker compose exec db psql -W -U flowerbro -d flowerbro`. [Configurazione TLS per pgJDBC](https://jdbc.postgresql.org/documentation/ssl/)
 
+Avvia Spring Boot con `.\gradlew.bat bootRun` dalla stessa cartella dopo aver generato la chiave degli account con `npm run setup:local` in `frontend`. Spring legge la configurazione PostgreSQL da `backend/.env` e le chiavi per gli ordini da `backend/.env.crypto`.
+
 ## Protezione dei dati
 
 - PostgreSQL richiede SCRAM-SHA-256. Le connessioni TCP richiedono TLS. La porta sul computer è esposta solo sull’indirizzo locale.
-- Il ruolo applicativo legge il catalogo e gestisce account, preferiti, carrelli e ordini con permessi specifici. Lo schema e le migrazioni sono amministrati da un ruolo distinto.
-- Il modulo Java `PersonalDataCrypto` usa AES-256-GCM per cifrare nome ed email dell’account e i dati di consegna prima di scriverli nel database. Le colonne cifrate contengono byte. La ricerca dell’account usa un HMAC-SHA-256 dell’email normalizzata, con una chiave distinta.
-- `password_hash` accetta hash bcrypt o Argon2id. Il servizio di registrazione genera l’hash con Spring Security prima della scrittura. [Salvataggio delle password in Spring Security](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html)
-- Le chiavi applicative sono in `.env.crypto`, separato da PostgreSQL e da Git. Conserva una copia protetta delle chiavi originali se salvi dati reali. Servono per recuperare i dati e cercare gli account.
+- Il ruolo applicativo legge il catalogo, aggiorna le disponibilità e scrive gli ordini. Un ruolo distinto amministra lo schema e le migrazioni.
+- `PersonalDataCrypto` cifra i dati di consegna con AES-256-GCM. La chiave HMAC identifica le ripetizioni dello stesso invio.
+- Conserva le chiavi originali per poter leggere gli ordini e riconoscere i tentativi già registrati. Il file `.env.crypto` è escluso da Git.
 
-## Integrazione con Spring Boot
+## Configurazione di produzione
 
-Le migrazioni si trovano in [`src/main/resources/db/migration`](src/main/resources/db/migration). Esegui le migrazioni con lo script di avvio e configura Spring Boot con l’utente applicativo della tabella.
+Applica le [migrazioni Flyway](src/main/resources/db/migration) e configura il ruolo applicativo nel database di destinazione. Imposta queste variabili per Spring Boot.
 
-In registrazione, valida i dati e scrivi il nome e l’email cifrati in `name_ciphertext` e `email_ciphertext`. Salva il risultato di `emailLookup` in `email_lookup` per la ricerca e l’unicità dell’account. In checkout, valida il destinatario, l’email, l’indirizzo, il CAP, il paese e il biglietto, quindi serializzali in JSON e cifrali in `delivery_ciphertext` con `Field.ORDER_DELIVERY`.
+| Variabile | Uso |
+| --- | --- |
+| `FLOWERBRO_DB_HOST` | Host di PostgreSQL presente nel certificato TLS |
+| `FLOWERBRO_DB_PORT` | Porta di PostgreSQL, predefinita `5433` |
+| `FLOWERBRO_DB_NAME` | Nome del database, predefinito `flowerbro` |
+| `FLOWERBRO_APP_DB_USER` | Ruolo applicativo, predefinito `flowerbro_app` |
+| `FLOWERBRO_APP_DB_PASSWORD` | Password del ruolo applicativo |
+| `FLOWERBRO_DB_CA_CERT` | Percorso del certificato CA fidato |
+| `FLOWERBRO_ORDER_DATA_KEY` | Chiave AES degli ordini, 32 byte in Base64 |
+| `FLOWERBRO_EMAIL_LOOKUP_KEY` | Chiave HMAC, altri 32 byte in Base64 |
 
-Salva ordine e righe nella stessa transazione. Ogni riga conserva nome e prezzo al momento dell’acquisto. La vista `order_totals` calcola subtotale, spedizione e totale. Prezzi e quantità del catalogo restano leggibili dal sito.
+## Dati degli ordini
+
+Ogni riga conserva nome, prezzo e quantità al momento dell’ordine. La vista `order_totals` contiene il riepilogo. `orders.delivery_ciphertext` contiene i dati di consegna cifrati. Per i prodotti con `stock_quantity` valorizzato, il salvataggio scala la disponibilità nella stessa transazione.
 
 Per aggiornare i pacchetti PostgreSQL dell’immagine locale, ricostruisci il servizio con `docker compose build --pull --no-cache db` ed esegui di nuovo lo script di avvio.

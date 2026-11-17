@@ -14,8 +14,9 @@ export const routes: Routes = [
     path: 'flower/:id',
     component: FlowerPageComponent,
     title: ({ paramMap }) => {
-      const flower = inject(FlowerService).getFlowerById(paramMap.get('id') ?? '');
-      return (flower?.name ?? 'Fiore non trovato') + ' | Flower Bro!';
+      const catalog = inject(FlowerService);
+      const flower = catalog.getFlowerById(paramMap.get('id') ?? '');
+      return (flower?.name ?? (catalog.unavailable() ? 'Catalogo' : 'Fiore non trovato')) + ' | Flower Bro!';
     },
   },
   { path: 'preferiti', component: Favorites, title: 'Preferiti | Flower Bro!' },

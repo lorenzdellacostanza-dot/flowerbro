@@ -21,13 +21,17 @@
     </div>
 
     <div class="catalog-tools">
-      <p class="results" role="status">{{ visibleFlowers().length }} {{ visibleFlowers().length === 1 ? 'risultato' : 'risultati' }}</p>
+      <p class="results" role="status">
+        @if (!catalog.unavailable()) {
+          {{ visibleFlowers().length }} {{ visibleFlowers().length === 1 ? 'risultato' : 'risultati' }}
+        }
+      </p>
       <div class="selects">
         <label class="select-control">
           <span class="visually-hidden">Occasione</span>
           <select #occasionSelect [value]="selectedOccasion()?.id ?? ''" (change)="filterOccasion(occasionSelect.value)">
             <option value="">Tutte le occasioni</option>
-            @for (occasion of occasions; track occasion.id) {
+            @for (occasion of occasions(); track occasion.id) {
               <option [value]="occasion.id">{{ occasion.label }}</option>
             }
           </select>
@@ -46,7 +50,15 @@
       </div>
     </div>
 
-    @if (visibleFlowers().length) {
+    @if (catalog.unavailable()) {
+      <div class="empty-state" role="status">
+        <app-icon name="flower" />
+        <h3>Catalogo momentaneamente non disponibile</h3>
+        <button class="btn btn-outline" type="button" [disabled]="catalog.isLoading()" (click)="catalog.reload()">
+          {{ catalog.isLoading() ? 'Caricamento…' : 'Riprova' }}
+        </button>
+      </div>
+    } @else if (visibleFlowers().length) {
       <ul class="product-grid" aria-label="Fiori del catalogo">
         @for (flower of visibleFlowers(); track flower.id) {
           <li><app-flower-card [flower]="flower" /></li>

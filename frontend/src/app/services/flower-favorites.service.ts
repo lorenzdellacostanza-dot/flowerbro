@@ -2,21 +2,24 @@ import { afterNextRender, computed, inject, Injectable, signal } from '@angular/
 import { Flower } from '../shared/models/Flower';
 import { FlowerService } from './flower.service';
 
+const storagePrefix = 'flowerbro.favorite.';
+
 @Injectable({ providedIn: 'root' })
 export class FlowerFavoritesService {
-  private readonly flowers = inject(FlowerService).getAll();
+  private readonly flowers = inject(FlowerService);
   private readonly favorites = signal<Partial<Record<string, boolean>>>({});
 
-  readonly selectedFlowers = computed(() => this.flowers.filter(flower => this.isFavorite(flower)));
+  readonly selectedFlowers = computed(() => this.flowers.getAll().filter(flower => this.isFavorite(flower)));
 
   constructor() {
     afterNextRender(() => {
       try {
         const favorites: Record<string, boolean> = {};
-        for (const flower of this.flowers) {
-          const saved = localStorage.getItem(this.storageKey(flower.id));
-          if (saved === 'true' || saved === 'false') {
-            favorites[flower.id] = saved === 'true';
+        for (let index = 0; index < localStorage.length; index++) {
+          const key = localStorage.key(index);
+          if (key?.startsWith(storagePrefix) && localStorage.getItem(key) === 'true') {
+            const id = key.slice(storagePrefix.length);
+            if (/^[1-9][0-9]{0,18}$/.test(id)) favorites[id] = true;
           }
         }
         this.favorites.set(favorites);
@@ -27,7 +30,7 @@ export class FlowerFavoritesService {
   }
 
   isFavorite(flower: Flower): boolean {
-    return this.favorites()[flower.id] ?? flower.favorite;
+    return this.favorites()[flower.id] === true;
   }
 
   toggle(flower: Flower): void {
@@ -35,13 +38,9 @@ export class FlowerFavoritesService {
     this.favorites.update(favorites => ({ ...favorites, [flower.id]: favorite }));
 
     try {
-      localStorage.setItem(this.storageKey(flower.id), String(favorite));
+      localStorage.setItem(storagePrefix + flower.id, String(favorite));
     } catch {
       // Keep the selection in memory when browser storage is unavailable.
     }
-  }
-
-  private storageKey(id: string): string {
-    return `flowerbro.favorite.${id}`;
   }
 }

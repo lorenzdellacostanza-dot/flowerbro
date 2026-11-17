@@ -1,6 +1,7 @@
 <section class="shell page">
   @if (flower(); as item) {
     @let bouquet = item.kind === 'bouquet';
+    @let available = cart.availableToAdd(item);
     <a class="back-link" routerLink="/" [queryParams]="{ tipo: bouquet ? 'bouquet' : 'fiori' }" fragment="catalogo">
       <app-icon name="arrow-left" /> {{ bouquet ? 'Tutti i bouquet' : 'Tutti i fiori singoli' }}
     </a>
@@ -26,21 +27,26 @@
           <p class="description">{{ item.description }}</p>
         }
 
-        <div class="buy">
-          <div class="quantity" role="group" aria-label="Quantità da aggiungere">
-            <button class="icon-button" type="button" aria-label="Diminuisci quantità"
-              [disabled]="quantity() <= 1" (click)="quantity.set(quantity() - 1)">
-              <app-icon name="minus" />
-            </button>
-            <output>{{ quantity() }}</output>
-            <button class="icon-button" type="button" aria-label="Aumenta quantità" (click)="quantity.set(quantity() + 1)">
-              <app-icon name="plus" />
+        @if (item.stockQuantity === 0) {
+          <p class="cart-status">Esaurito</p>
+        } @else if (available > 0) {
+          <div class="buy">
+            <div class="quantity" role="group" aria-label="Quantità da aggiungere">
+              <button class="icon-button" type="button" aria-label="Diminuisci quantità"
+                [disabled]="quantity() <= 1" (click)="quantity.set(quantity() - 1)">
+                <app-icon name="minus" />
+              </button>
+              <output>{{ quantity() }}</output>
+              <button class="icon-button" type="button" aria-label="Aumenta quantità"
+                [disabled]="quantity() >= available" (click)="quantity.set(quantity() + 1)">
+                <app-icon name="plus" />
+              </button>
+            </div>
+            <button type="button" class="btn" [disabled]="quantity() > available" (click)="addToCart(item.id)">
+              <app-icon name="bag" /> Aggiungi al carrello
             </button>
           </div>
-          <button type="button" class="btn" (click)="addToCart(item.id)">
-            <app-icon name="bag" /> Aggiungi al carrello
-          </button>
-        </div>
+        }
         @if (cart.quantity(item.id); as inCart) {
           <div class="cart-status">
             <span>{{ inCart }} nel carrello</span>
@@ -61,10 +67,10 @@
             }
           </dl>
         }
-        @if (item.tags?.length) {
+        @if (item.tags.length) {
           <ul class="tags" aria-label="Caratteristiche">
             @for (tag of item.tags; track tag) {
-              <li>{{ tagLabels[tag] || tag }}</li>
+              <li>{{ tagLabels()[tag] || tag }}</li>
             }
           </ul>
         }
@@ -82,6 +88,12 @@
         </ul>
       </section>
     }
+  } @else if (catalog.unavailable()) {
+    <div class="empty-state" role="status">
+      <app-icon name="flower" />
+      <h1>Catalogo momentaneamente non disponibile</h1>
+      <button class="btn" type="button" [disabled]="catalog.isLoading()" (click)="catalog.reload()">Riprova</button>
+    </div>
   } @else {
     <div class="empty-state">
       <app-icon name="flower" />

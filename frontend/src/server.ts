@@ -6,7 +6,7 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
-import { createAccountProxy } from './account-proxy';
+import { createApiProxy } from './api-proxy';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 const isServerEntry = isMainModule(import.meta.url) || !!process.env['pm_id'];
@@ -49,10 +49,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/account', createAccountProxy(publicOrigin));
-app.use('/api', (_req, res) => {
-  res.set('Cache-Control', 'no-store').status(404).json({ error: 'Pagina non trovata.' });
-});
+app.use('/api', createApiProxy(publicOrigin));
 
 app.use(['/login', '/registrati', '/profilo', '/checkout'], (_req, res, next) => {
   res.set('Cache-Control', 'no-store');

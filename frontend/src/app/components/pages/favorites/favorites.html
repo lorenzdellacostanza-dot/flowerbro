@@ -6,7 +6,12 @@
       <p>{{ flowers().length }} {{ flowers().length === 1 ? 'fiore salvato' : 'fiori salvati' }}</p>
     }
   </header>
-  @if (flowers().length) {
+  @if (catalog.unavailable()) {
+    <div class="empty-state" role="status">
+      <h2>Catalogo momentaneamente non disponibile</h2>
+      <button class="btn" type="button" [disabled]="catalog.isLoading()" (click)="catalog.reload()">Riprova</button>
+    </div>
+  } @else if (flowers().length) {
     <ul class="product-grid">
       @for (flower of flowers(); track flower.id) {
         <li><app-flower-card [flower]="flower" [loading]="$index < 4 ? 'eager' : 'lazy'" /></li>

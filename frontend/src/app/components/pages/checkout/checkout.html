@@ -2,7 +2,8 @@
   @if (receipt(); as order) {
     <div class="empty-state confirmation" role="status">
       <app-icon name="check" />
-      <h1>Ordine demo confermato</h1>
+      <h1>Ordine ricevuto</h1>
+      <p>Numero ordine #{{ order.id }}</p>
       <p>{{ order.count }} {{ order.count === 1 ? 'articolo' : 'articoli' }} · Totale {{ order.total | currency:'EUR' }}</p>
       <a class="btn" routerLink="/" fragment="catalogo">Torna al catalogo <app-icon name="arrow-right" /></a>
     </div>
@@ -11,11 +12,23 @@
     <header class="page-title">
       <h1>Consegna</h1>
     </header>
-    @if (cart.items().length) {
+    @if (error()) {
+      <p class="form-error" role="alert">{{ error() }}</p>
+    }
+    @if (catalog.unavailable()) {
+      <div class="empty-state" role="status">
+        <h2>Catalogo momentaneamente non disponibile</h2>
+        <button class="btn" type="button" [disabled]="catalog.isLoading()" (click)="catalog.reload()">Riprova</button>
+      </div>
+    } @else if (cart.missingItems() || cart.exceedsStock()) {
+      <div class="empty-state" role="status">
+        <h2>Controlla la disponibilità nel carrello</h2>
+        <a class="btn" routerLink="/cart-page">Rivedi il carrello</a>
+      </div>
+    } @else if (cart.items().length) {
       <div class="order-layout">
         <form id="delivery-form" class="delivery-form" method="post" (submit)="placeOrder($event)">
           <h2>Dati di consegna</h2>
-          <p class="form-note">Usa dati di prova per simulare un ordine.</p>
           <label class="field">
             Nome e cognome del destinatario
             <input name="recipient" autocomplete="shipping name" maxlength="100" required>
@@ -43,9 +56,6 @@
             Messaggio per il biglietto (facoltativo)
             <textarea name="message" rows="3" maxlength="200"></textarea>
           </label>
-          @if (error()) {
-            <p class="form-error" role="alert">{{ error() }}</p>
-          }
         </form>
         <aside class="order-summary" aria-labelledby="checkout-summary-title">
           <h2 id="checkout-summary-title">Il tuo ordine</h2>
@@ -60,8 +70,10 @@
               </li>
             }
           </ul>
-          <p class="summary-row summary-total"><span>Totale demo</span><strong>{{ cart.total() | currency:'EUR' }}</strong></p>
-          <button class="btn" type="submit" form="delivery-form">Conferma ordine demo <app-icon name="arrow-right" /></button>
+          <p class="summary-row summary-total"><span>Totale</span><strong>{{ cart.total() | currency:'EUR' }}</strong></p>
+          <button class="btn" type="submit" form="delivery-form" [disabled]="pending()">
+            {{ pending() ? 'Invio in corso…' : 'Invia ordine' }} <app-icon name="arrow-right" />
+          </button>
         </aside>
       </div>
     } @else {

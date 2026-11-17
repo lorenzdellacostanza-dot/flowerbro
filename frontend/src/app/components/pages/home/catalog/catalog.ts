@@ -4,7 +4,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FlowerService } from '../../../../services/flower.service';
 import { FlowerCard } from '../../../partials/flower-card/flower-card';
 import { Icon } from '../../../partials/icon/icon';
-import { occasions } from './occasions';
 
 const groups = [
   { id: null, label: 'Tutti i fiori', kind: null },
@@ -22,20 +21,20 @@ export class Catalog {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly params = toSignal(this.route.queryParamMap, { requireSync: true });
-  private readonly flowerService = inject(FlowerService);
+  protected readonly catalog = inject(FlowerService);
 
   protected readonly groups = groups;
-  protected readonly occasions = occasions;
+  protected readonly occasions = this.catalog.occasions;
   protected readonly selectedGroup = computed(() =>
     groups.find(group => group.id === this.params().get('tipo')) ?? groups[0]
   );
   protected readonly selectedOccasion = computed(() =>
-    occasions.find(occasion => occasion.id === this.params().get('occasione'))
+    this.occasions().find(occasion => occasion.id === this.params().get('occasione'))
   );
   protected readonly searchTerm = signal('');
   protected readonly sort = signal('featured');
 
-  protected readonly visibleFlowers = computed(() => this.flowerService.search({
+  protected readonly visibleFlowers = computed(() => this.catalog.search({
     kind: this.selectedGroup().kind,
     occasionTags: this.selectedOccasion()?.tags,
     term: this.searchTerm(),

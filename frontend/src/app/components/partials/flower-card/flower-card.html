@@ -14,12 +14,13 @@
   <div class="card-body">
     <div>
       <h3><a [routerLink]="['/flower', item.id]">{{ item.name }}</a></h3>
-      <p class="card-caption">{{ item.composition || 'Fiore singolo' }}</p>
+      <p class="card-caption">{{ item.stockQuantity === 0 ? 'Esaurito' : (item.composition || (item.kind === 'bouquet' ? 'Bouquet' : 'Fiore singolo')) }}</p>
     </div>
     <div class="card-actions">
       <p class="card-price">{{ item.price | currency:'EUR' }} <small>/ {{ item.kind === 'bouquet' ? 'bouquet' : 'stelo' }}</small></p>
       <button class="icon-button add-button" type="button" title="Aggiungi al carrello"
-        [attr.aria-label]="'Aggiungi ' + item.name + ' al carrello'" (click)="addToCart()">
+        [attr.aria-label]="'Aggiungi ' + item.name + ' al carrello'" [disabled]="cart.availableToAdd(item) === 0"
+        (click)="addToCart()">
         <app-icon name="plus" />
         @if (quantity) {
           <span class="item-count" aria-hidden="true">{{ quantity > 99 ? '99+' : quantity }}</span>

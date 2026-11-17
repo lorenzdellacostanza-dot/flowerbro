@@ -16,6 +16,7 @@ GRANT USAGE ON SCHEMA public TO flowerbro_app;
 
 GRANT SELECT ON products, product_origins, tags, product_tags, occasions, occasion_tags, order_totals
     TO flowerbro_app;
+GRANT UPDATE (stock_quantity) ON products TO flowerbro_app;
 
 GRANT SELECT ON accounts TO flowerbro_app;
 GRANT INSERT (name_ciphertext, email_ciphertext, email_lookup, password_hash),

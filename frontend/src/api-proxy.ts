@@ -1,17 +1,14 @@
 import express, { type ErrorRequestHandler, type Request, type Response } from 'express';
 import { request, type OutgoingHttpHeaders } from 'node:http';
 import { isIP } from 'node:net';
+import { readBackendPort } from './backend-port';
 
 const accountPath = '/api/account';
 const forwardedHeaders = ['host', 'origin', 'sec-fetch-site', 'content-type', 'cookie'] as const;
 const responseHeaders = ['content-type', 'retry-after', 'set-cookie'] as const;
 
-export function createAccountProxy(publicOrigin: URL | undefined) {
-  const port = Number(process.env['FLOWERBRO_BACKEND_PORT'] ?? 8080);
-  if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error('FLOWERBRO_BACKEND_PORT deve essere una porta TCP valida.');
-  }
-
+export function createApiProxy(publicOrigin: URL | undefined) {
+  const port = readBackendPort();
   const router = express.Router();
   router.use((_req, res, next) => {
     res.set('Cache-Control', 'no-store');
@@ -39,7 +36,7 @@ export function createAccountProxy(publicOrigin: URL | undefined) {
         res.destroy();
         return;
       }
-      res.status(502).json({ error: 'Il servizio account non è disponibile. Riprova tra poco.' });
+      res.status(502).json({ error: 'Il servizio è momentaneamente non disponibile. Riprova tra poco.' });
     }
 
     const upstream = request(
@@ -74,14 +71,18 @@ export function createAccountProxy(publicOrigin: URL | undefined) {
     upstream.end(body);
   }
 
-  router.get('/', (req, res) => forward(req, res, 'GET', accountPath));
+  router.get('/account', (req, res) => forward(req, res, 'GET', accountPath));
 
-  const readBody = express.raw({ type: () => true, limit: '4kb', inflate: false });
+  const readAccount = express.raw({ type: () => true, limit: '4kb', inflate: false });
   for (const action of ['register', 'login', 'logout']) {
-    router.post('/' + action, readBody, (req, res) =>
+    router.post('/account/' + action, readAccount, (req, res) =>
       forward(req, res, 'POST', accountPath + '/' + action),
     );
   }
+
+  router.get('/catalog', (req, res) => forward(req, res, 'GET', '/api/catalog'));
+  const readOrder = express.raw({ type: () => true, limit: '16kb', inflate: false });
+  router.post('/orders', readOrder, (req, res) => forward(req, res, 'POST', '/api/orders'));
 
   router.use((_req, res) => {
     res.status(404).json({ error: 'Pagina non trovata.' });

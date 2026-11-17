@@ -3,12 +3,12 @@ export class Flower {
   name!: string;
   kind!: 'bouquet' | 'stem';
   price!: number;
-  tags?: string[];
-  favorite!: boolean;
+  tags!: string[];
   stars!: number;
   imageUrl!: string;
   origins!: string[];
-  deliveryTime?: string;
-  description?: string;
-  composition?: string;
+  stockQuantity!: number | null;
+  deliveryTime!: string | null;
+  description!: string | null;
+  composition!: string | null;
 }

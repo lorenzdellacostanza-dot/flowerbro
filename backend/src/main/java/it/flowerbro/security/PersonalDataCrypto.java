@@ -72,6 +72,14 @@ public final class PersonalDataCrypto {
         return mac.doFinal(normalized.getBytes(StandardCharsets.UTF_8));
     }
 
+    public byte[] checkoutDigest(byte[] request) throws GeneralSecurityException {
+        Mac mac = Mac.getInstance(HMAC);
+        mac.init(emailLookupKey);
+        mac.update("orders.checkout".getBytes(StandardCharsets.UTF_8));
+        mac.update((byte) 0);
+        return mac.doFinal(request);
+    }
+
     private Cipher createCipher(int mode, Field field, byte[] nonce) throws GeneralSecurityException {
         Cipher cipher = Cipher.getInstance(AES_GCM);
         cipher.init(mode, encryptionKey, new GCMParameterSpec(TAG_BYTES * Byte.SIZE, nonce));

@@ -2,6 +2,7 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../../services/cart.service';
+import { FlowerService } from '../../../services/flower.service';
 import { Icon } from '../../partials/icon/icon';
 
 @Component({
@@ -12,6 +13,7 @@ import { Icon } from '../../partials/icon/icon';
 })
 export class CartPageComponent {
   protected readonly cart = inject(CartService);
+  protected readonly catalog = inject(FlowerService);
 
   protected increaseQuantity(flowerId: string): void {
     this.cart.add(flowerId);

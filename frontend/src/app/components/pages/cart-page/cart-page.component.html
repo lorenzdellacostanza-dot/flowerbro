@@ -7,7 +7,19 @@
     }
   </header>
 
-  @if (cart.items().length) {
+  @if (cart.missingItems()) {
+    <div class="order-summary" role="status">
+      <p>Alcuni prodotti sono stati rimossi dal catalogo.</p>
+      <button class="btn btn-outline" type="button" (click)="cart.removeMissing()">Rimuovi i prodotti mancanti</button>
+    </div>
+  }
+
+  @if (catalog.unavailable()) {
+    <div class="empty-state" role="status">
+      <h2>Catalogo momentaneamente non disponibile</h2>
+      <button class="btn" type="button" [disabled]="catalog.isLoading()" (click)="catalog.reload()">Riprova</button>
+    </div>
+  } @else if (cart.items().length) {
     <div class="order-layout">
       <ul class="cart-items" aria-label="Articoli nel carrello">
         @for (item of cart.items(); track item.flower.id) {
@@ -17,6 +29,11 @@
               <span>
                 <strong>{{ item.flower.name }}</strong>
                 <small>{{ item.flower.price | currency:'EUR' }} / {{ item.flower.kind === 'bouquet' ? 'bouquet' : 'stelo' }}</small>
+                @if (item.flower.stockQuantity !== null && item.quantity > item.flower.stockQuantity) {
+                  <small class="form-error">
+                    {{ item.flower.stockQuantity === 0 ? 'Esaurito' : 'Disponibili: ' + item.flower.stockQuantity }}
+                  </small>
+                }
               </span>
             </a>
 
@@ -28,7 +45,7 @@
                 </button>
                 <span>{{ item.quantity }}</span>
                 <button class="icon-button" type="button" [attr.aria-label]="'Aumenta quantità di ' + item.flower.name"
-                  (click)="increaseQuantity(item.flower.id)">
+                  [disabled]="cart.availableToAdd(item.flower) === 0" (click)="increaseQuantity(item.flower.id)">
                   <app-icon name="plus" />
                 </button>
               </div>
@@ -45,7 +62,11 @@
       <aside class="order-summary" aria-labelledby="cart-summary-title">
         <h2 id="cart-summary-title">Riepilogo</h2>
         <p class="summary-row summary-total"><span>Subtotale</span><strong>{{ cart.total() | currency:'EUR' }}</strong></p>
-        <a class="btn" routerLink="/checkout">Vai alla consegna <app-icon name="arrow-right" /></a>
+        @if (cart.exceedsStock() || cart.missingItems()) {
+          <p class="form-error">Aggiorna le quantità per proseguire.</p>
+        } @else {
+          <a class="btn" routerLink="/checkout">Vai alla consegna <app-icon name="arrow-right" /></a>
+        }
       </aside>
     </div>
   } @else {
