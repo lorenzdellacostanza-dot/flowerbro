@@ -8,7 +8,7 @@ Negozio online di bouquet e fiori recisi, con catalogo, preferiti, carrello e in
 
 ## Panoramica
 
-Flower Bro! permette di scegliere fiori per un regalo, confrontare le composizioni e inviare un ordine con i dati del destinatario e una dedica. L’interfaccia è in italiano e si adatta a desktop e smartphone.
+Flower Bro! permette di scegliere fiori per un regalo, confrontare le composizioni e inviare un ordine con i dati del destinatario. L’interfaccia è in italiano e si adatta a desktop e smartphone.
 
 ## Architettura
 
