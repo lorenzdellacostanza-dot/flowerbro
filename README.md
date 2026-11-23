@@ -165,6 +165,6 @@ Pagamenti online, gestione delle spedizioni, verifica dell’email e recupero de
 
 ## Crediti
 
-Repository del progetto a cura di [Lorenz Dellacostanza](https://github.com/lorenzdellacostanza-dot).
+Repository del progetto a cura di Matricola 125946 [Lorenz Dellacostanza](https://github.com/lorenzdellacostanza-dot).
 
-Ha collaborato al progetto [ilacola](https://github.com/ilacola).
+Ha collaborato al progetto Matricola 129368 [ilacola](https://github.com/ilacola).
