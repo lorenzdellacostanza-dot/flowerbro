@@ -168,5 +168,3 @@ Pagamenti online, gestione delle spedizioni, verifica dell’email e recupero de
 Repository del progetto a cura di [Lorenz Dellacostanza](https://github.com/lorenzdellacostanza-dot).
 
 Ha collaborato al progetto [ilacola](https://github.com/ilacola).
-
-Struttura del README ispirata a [CigarClubApp](https://github.com/Marco-Pagnanini/CigarClubApp/blob/main/README.md).
